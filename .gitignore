@@ -1,0 +1,9 @@
+# Nested app repos — they have their own remotes and CI
+next-books/
+nuxt-books/
+solid-books/
+svelte-books/
+waku-books/
+ember-books/
+pract-books/
+.cursor/
