@@ -28,8 +28,8 @@ Vite-based ports ship **two** hosted versions on each provider:
 | svelte-books  | SvelteKit       | same                                                                      | `optimized`                | [svelte-books-optimized.vercel.app](https://svelte-books-optimized.vercel.app)     | [svelte-books-max-optimized.netlify.app](https://svelte-books-max-optimized.netlify.app) | [svelte-books-optimized.to-email-max.workers.dev](https://svelte-books-optimized.to-email-max.workers.dev)     | cache + fonts                                                         |
 | waku-books    | Waku            | [MaxwellCohen/waku-books](https://github.com/MaxwellCohen/waku-books)     | `main`                     | [waku-books.vercel.app](https://waku-books.vercel.app)                             | [waku-books.netlify.app](https://waku-books.netlify.app)                                 | [waku-books.to-email-max.workers.dev](https://waku-books.to-email-max.workers.dev)                             | vibe port                                                             |
 | waku-books    | Waku            | same                                                                      | `optimized`                | [waku-books-optimized.vercel.app](https://waku-books-optimized.vercel.app)         | [waku-books-max-optimized.netlify.app](https://waku-books-max-optimized.netlify.app)     | [waku-books-optimized.to-email-max.workers.dev](https://waku-books-optimized.to-email-max.workers.dev)         | cache + fonts                                                         |
-| pract-books   | Pracht (Preact) | [MaxwellCohen/pract-books](https://github.com/MaxwellCohen/pract-books)   | `main`                     | [pract-books.vercel.app](https://pract-books.vercel.app)                           | [pract-books.netlify.app](https://pract-books.netlify.app)                               | [pract-books.to-email-max.workers.dev](https://pract-books.to-email-max.workers.dev)                           | vibe port                                                             |
-| pract-books   | Pracht (Preact) | same                                                                      | `optimized`                | [pract-books-optimized.vercel.app](https://pract-books-optimized.vercel.app)       | [pract-books-max-optimized.netlify.app](https://pract-books-max-optimized.netlify.app)   | [pract-books-optimized.to-email-max.workers.dev](https://pract-books-optimized.to-email-max.workers.dev)       | cache + fonts                                                         |
+| pracht-books   | Pracht (Preact) | [MaxwellCohen/pracht-books](https://github.com/MaxwellCohen/pracht-books)   | `main`                     | [pracht-books.vercel.app](https://pracht-books.vercel.app)                           | [pracht-books.netlify.app](https://pracht-books.netlify.app)                               | [pracht-books.to-email-max.workers.dev](https://pracht-books.to-email-max.workers.dev)                           | vibe port                                                             |
+| pracht-books   | Pracht (Preact) | same                                                                      | `optimized`                | [pracht-books-optimized.vercel.app](https://pracht-books-optimized.vercel.app)       | [pracht-books-max-optimized.netlify.app](https://pracht-books-max-optimized.netlify.app)   | [pracht-books-optimized.to-email-max.workers.dev](https://pracht-books-optimized.to-email-max.workers.dev)       | cache + fonts                                                         |
 
 
 
@@ -74,8 +74,8 @@ The win is not “framework X is faster.” Unoptimized, they look the same. Cac
 | Svelte    | optimized | 95       | 1.5         | 2.2         |
 | Waku      | baseline  | 79       | 2.5         | 4.7         |
 | Waku      | optimized | 96       | 1.4         | 2.4         |
-| Pract     | baseline  | 80       | 2.5         | 4.5         |
-| Pract     | optimized | 88       | 1.3         | 3.9         |
+| Pracht    | baseline  | 80       | 2.5         | 4.5         |
+| Pracht    | optimized | 88       | 1.3         | 3.9         |
 
 
 
@@ -104,9 +104,9 @@ The win is not “framework X is faster.” Unoptimized, they look the same. Cac
 
 ![waku-books Lighthouse scores](docs/waku-books-lighthouse.png)
 
-#### pract-books (streaming disabled)
+#### pracht-books (streaming disabled)
 
-![pract-books Lighthouse scores](docs/pract-books-lighthouse.png)
+![pracht-books Lighthouse scores](docs/pracht-books-lighthouse.png)
 
 ### CWV tests from 11/17/2026 with vite basic cache
 
@@ -132,9 +132,9 @@ The win is not “framework X is faster.” Unoptimized, they look the same. Cac
 
 ![waku-books Lighthouse scores](docs/waku-books-lighthouse-basic-cache.png)
 
-#### pract-books
+#### pracht-books
 
-![pract-books Lighthouse scores](docs/pract-books-lighthouse-basic-cache.png)
+![pracht-books Lighthouse scores](docs/pracht-books-lighthouse-basic-cache.png)
 
 ### CWV tests from 9/22/2026 with cache + fonts
 
@@ -164,9 +164,9 @@ Baseline (`main`) and optimized (`optimized`) deploys side-by-side on each host.
 
 ![waku-books Lighthouse scores](docs/waku-books-lighthouse-optimized.png)
 
-#### pract-books
+#### pracht-books
 
-![pract-books Lighthouse scores](docs/pract-books-lighthouse-optimized.png)
+![pracht-books Lighthouse scores](docs/pracht-books-lighthouse-optimized.png)
 
 ### CWV tests from 9/27/2026 — nuxt-books
 
