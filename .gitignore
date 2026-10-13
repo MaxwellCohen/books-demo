@@ -6,4 +6,8 @@ svelte-books/
 waku-books/
 ember-books/
 pracht-books/
+*-books/
 .cursor/
+
+# Local Netlify folder
+.netlify
