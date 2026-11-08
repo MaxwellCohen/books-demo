@@ -232,6 +232,103 @@ Useful checks while doing this:
 - Does the HTML response time spike on a cold cache? That is a server hop.
 - On Cloudflare, is the document actually served from cache, or re-rendered?
 
+## How each framework holds up on the five items
+
+The five levers are the same for every port. What differs is how much of each one the framework gives you and how much this repo had to wire by hand. The matrix below covers the builds in this repository (the `optimized` branch where one exists). Codes:
+
+- **Built-in** — a default or first-party component/flag covers it.
+- **Opt-in** — a first-party flag or module exists, but you must turn it on.
+- **Manual** — no framework primitive; this repo implements it by hand.
+- **None** — not done on the measured build.
+
+| Item | Next | Nuxt | SvelteKit | SolidStart | TanStack Start | Pracht | Waku | Ember |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Production CSS inlining | Opt-in | Opt-in | Opt-in | Manual | Manual | Opt-in | None | None |
+| Font optimization | Built-in | Manual | Manual | Manual | Manual | Manual | Manual | Manual |
+| Image pipeline | Built-in | Built-in | Manual | Manual | Manual | Built-in | None | None |
+| Data/HTML caching | Built-in | Built-in | Manual | None | Manual | Manual | Manual | Manual |
+| Route prefetching | Built-in | Built-in | Opt-in | Manual | Built-in | Built-in | Built-in | None |
+
+### Production CSS inlining
+
+- **Next** — `experimental.inlineCss: true` in `next.config.ts`. One flag, and it is the main reason Next's first paint is under a second.
+- **Nuxt** — `features.inlineStyles: true`, but only on the `nuxt-books-optimized-max` branch. The plain `optimized` build leaves the stylesheet linked and measures 1.2s+; the max build reaches 0.9s.
+- **SvelteKit** — `inlineStyleThreshold: Number.POSITIVE_INFINITY` in `vite.config.ts`. One line, but you have to know it exists.
+- **SolidStart** — no build flag. `src/Document.tsx` imports `app.css?inline` and renders a `<style>` tag. The plugin's `start.css` option only inlines dev CSS for no-FOUC; production still uses built assets.
+- **TanStack Start** — no build flag. Both the React and Solid roots import `styles.css?inline` (or `app.css?inline`) and pass `styles: [{ children: appCss }]`.
+- **Pracht** — `inlineCss: true` on the `@pracht/vite-plugin` options.
+- **Waku** — no support; the HTML links the built stylesheet.
+- **Ember** — no support; `index.html` links `/app/styles/app.css`, and the optimized branch does not change that.
+
+The notable result: inlining is *not* required to leave the 2.5s band. Waku-optimized (1.4s) and Ember-optimized (1.4–1.6s on Vercel/Netlify, 1.8s on Cloudflare) skipped it and still reached the middle band because they removed the font hop. It does look required to reach 0.9s, where Next and Nuxt-max also have the data cache warm.
+
+### Font optimization
+
+- **Next** — `next/font/google` self-hosts, subsets, generates the `@font-face`, and preloads at build time. No config beyond using it in the layout.
+- **Nuxt** — no `next/font` equivalent is used here. `@fontsource-variable/geist` is imported from `app/assets/css/main.css`; `@nuxt/fonts` exists but is not installed.
+- **SvelteKit** — manual: `@fontsource-variable/geist` imported in `src/routes/layout.css`. No explicit preload link, but the font is discovered from the inlined stylesheet.
+- **SolidStart** — manual: `@fontsource-variable/geist` plus an explicit `<link rel="preload" as="font">` with the hashed woff2 URL in `src/Document.tsx`.
+- **TanStack Start** — manual: `@fontsource` in the global stylesheet. The Solid version also preloads the woff2 in `__root.tsx`; the React version relies on the inlined CSS to discover it.
+- **Pracht** — manual: `@fontsource-variable/geist` in `src/styles/global.css`.
+- **Waku** — manual on `optimized` (fontsource import); `main` still loads Geist from `fonts.googleapis.com` with `display=block`.
+- **Ember** — manual on `optimized` (fontsource import); `main` uses the same Google Fonts link with `preconnect`.
+
+Fonts are the one item where Next is genuinely alone. Every other framework either uses a community package (`@fontsource`) or a CDN, and only the ports that switched to `@fontsource` left the 2.5s band.
+
+### Image pipeline
+
+- **Next** — `next/image` plus the built-in optimizer, `priority` on the first ten covers, `sizes`, and ThumbHash placeholders.
+- **Nuxt** — `@nuxt/image` plus `<NuxtImg preload>` on the first covers.
+- **SvelteKit** — manual: Unpic transforms plus an `ipx` handler (`src/lib/server/ipx-handler.ts`), disabled on Cloudflare.
+- **SolidStart** — manual: Unpic plus the per-host Nitro image config and the cover preload components.
+- **TanStack Start** — manual: Unpic URL transforms plus IPX/Nitro or the host CDN, chosen in `vite.config.ts`.
+- **Pracht** — first-party `@pracht/image` plus per-host adapters (`@pracht/adapter-vercel`, `-netlify`, `-cloudflare`).
+- **Waku** — none: it rewrites Goodreads' `m` size token to `l` but emits no `srcset` and runs no optimizer.
+- **Ember** — none: a plain `<img>` with no `srcset` or `sizes`.
+
+This item affects LCP more than FCP, which is why the image-poor ports can still be fast at first paint and slow on the cover.
+
+### Data and HTML caching
+
+- **Next** — `cacheComponents`, `'use cache'`, and `cacheLife('hours')` on the catalog queries.
+- **Nuxt** — `defineCachedEventHandler`, `nitro.storage.cache`, and a header-only `routeRules` cache; the max branch adds persistent drivers for Vercel, Netlify, and Cloudflare KV.
+- **SvelteKit** — manual: `src/lib/server/catalog-cache.ts` with Vercel Cache, Netlify Blobs, and the Workers KV/Cache API paths.
+- **SolidStart** — none: loaders in `src/features/book/book-queries.ts` query Postgres on a cold request, and there is no component-level cache yet.
+- **TanStack Start** — manual: `src/lib/catalog-cache.ts` plus document `Cache-Control` headers in `src/start.ts`.
+- **Pracht** — manual: `src/lib/catalog-cache.ts` with the same host-aware strategy.
+- **Waku** — manual on `optimized`: `src/lib/catalog-cache.ts` plus `middleware/html-cache-control.ts`; `main` has neither.
+- **Ember** — manual on `optimized`: `server/catalog-cache.js` plus `public/_headers`; `main` has neither.
+
+The Cloudflare results in the 1.7–2.0 band are the ones to watch here. A cache that lives in isolate memory looks fine on Vercel and misses on Workers. Persistent KV/Blobs/Cache-API storage is what moves that row to 1.1–1.5.
+
+### Route prefetching
+
+- **Next** — `partialPrefetching`, `prefetch={true}` on high-value links, and the `FastLink` pointer-down navigation.
+- **Nuxt** — `<NuxtLink>` `prefetch-on="visibility" | "interaction"`, `_payload.json` payload prefetch, and `prefetchPreloadTags`.
+- **SvelteKit** — opt-in: `data-sveltekit-preload-data="hover"` plus explicit `preload` props on the pagination and sidebar.
+- **SolidStart** — manual: the router exposes per-link `preload`; `FastLink` wires it. There is no shared-shell partial prefetch.
+- **TanStack Start** — built-in router `preload` with `intent` / `viewport`, wrapped by `FastLink`.
+- **Pracht** — built-in `prefetch` with `viewport` / `intent`.
+- **Waku** — `unstable_prefetchOnView` / `unstable_prefetchOnEnter` on `FastLink`; still marked unstable in the API name.
+- **Ember** — none: `LinkTo` has no prefetch behavior.
+
+Prefetching barely moves Lighthouse FCP because it mostly helps the *next* navigation, not the first paint. It matters for how fast the app feels once someone starts clicking, which is the caveat at the bottom of this document.
+
+### How that adds up
+
+| Framework | What it gets free | What it had to add | Best measured FCP |
+| --- | --- | --- | --- |
+| Next | All five, as flags/defaults | Nothing | 0.9s |
+| Nuxt (max) | Inline styles flag, image module, cache, prefetch | Fontsource | 0.9s |
+| SvelteKit | Inline-CSS and prefetch flags | Fonts, images, cache | 1.4–1.5s |
+| SolidStart | Router `preload` only | CSS inline, fonts, images; cache still missing | 1.1–1.7s |
+| TanStack Start | Router prefetch | CSS inline, fonts, images, cache | not in the 9/xx runs |
+| Pracht | Inline CSS, image module, prefetch | Fonts, cache | 1.2–1.5s |
+| Waku | Prefetch | Fonts, cache; no CSS inline or images | 1.4s optimized / 2.4–2.6s baseline |
+| Ember | None of the five | Fonts, cache; no CSS inline, images, or prefetch | 1.4–1.8s optimized / 2.6–2.8s baseline |
+
+The pattern is consistent with the band model: the frameworks that reach 0.9s have all five and a warm cache; the ones in the middle band removed the font and data hops but left one request; the baseline band has the full waterfall. The framework label is a proxy for how many of these five features ship in the box — not for how fast the runtime is.
+
 ## Caveats
 
 - **Lab vs field.** These are mobile Lighthouse lab results, not real-user data. They measure a cold, throttled first load. Real users on warm caches, fast connections, or repeat visits will see different numbers.
