@@ -13,6 +13,7 @@ This is the companion to [fcp-groupings.md](./fcp-groupings.md), which explains 
 | Image pipeline | ✅ Built-in | 🔶 Opt-in | 🔶 Opt-in | 🔧 Manual | 🔧 Manual | 🔶 Opt-in | ❌ None | ❌ None |
 | Data/HTML caching | ✅ Built-in | ✅ Built-in | 🔧 Manual | ❌ None | 🔶 Opt-in | 🔶 Opt-in | 🔧 Manual | 🔧 Manual |
 | Route prefetching | ✅ Built-in | ✅ Built-in | 🔶 Opt-in | 🔶 Opt-in | 🔶 Opt-in | ✅ Built-in | 🔶 Opt-in | ❌ None |
+| **Score (max 10)** | **9** | **7** | **3** | **1** | **2** | **7** | **1** | **0** |
 
 How to read it at a glance:
 
@@ -20,6 +21,8 @@ How to read it at a glance:
 - 🔶 **Opt-in** — a first-party flag, module, or primitive exists, but you must turn it on.
 - 🔧 **Manual** — no framework primitive; the app (or this repo) wires it by hand.
 - ❌ **None** — no path for it in the measured build.
+
+**Scoring:** ✅ = 2 points, 🔶 = 1, 🔧 and ❌ = 0. Each table ends with a score row.
 
 The labels describe **framework capability**, not what a particular port chose. Several ports took a manual route even where an opt-in primitive existed; the feature sections below call that out and link the setup docs for each framework.
 
@@ -135,6 +138,7 @@ The five levers explain the FCP bands. They are not the whole feature space. Thi
 | Built-in bundle analysis | ✅ Built-in | ✅ Built-in | 🔧 Manual | 🔧 Manual | 🔧 Manual | ✅ Built-in | 🔧 Manual | 🔧 Manual |
 | Third-party script strategies | ✅ Built-in | ✅ Built-in | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual |
 | Portable multi-host deployment | 🔧 Manual | ✅ Built-in | ✅ Built-in | ✅ Built-in | ✅ Built-in | ✅ Built-in | ✅ Built-in | 🔧 Manual |
+| **Score (max 16)** | **6** | **13** | **7** | **5** | **4** | **11** | **5** | **2** |
 
 **Summary:** Next leads the five FCP levers but is not the broadest framework here. Nuxt has the widest set: per-route rules, experimental islands, art-direction components, first-party reactivity, built-in analysis, script helpers, and Nitro presets. Pracht is the only framework where islands are a per-route hydration mode, and it also has server islands, ISR, an analyzer, and first-party adapters. SvelteKit and SolidStart sit in the middle: strong routing and deploy primitives, but no islands and no built-in script or analysis tooling. Waku gets per-route rendering, adapters, and lazy slices, but its React runtime gives it no islands or fine-grained reactivity. Ember has autotracking but none of the rest.
 
@@ -246,7 +250,22 @@ This is an interaction-cost property, not a first-paint one. It shows up in INP 
 - **Waku** — first-party [`adapters`](https://waku.gg/#deployment) for Node, Vercel, Netlify, Cloudflare, and Deno (experimental).
 - **Ember** — FastBoot plus Embroider; no first-party host adapters.
 
-Read the two tables together, not as one score. A framework can have more of these features and still land in a slower FCP band — Pracht has islands, ISR, adapters, and an analyzer, and still measures 1.2–1.5s. The first table explains the bands; this one explains what each framework can do once the page is loaded.
+Read the two tables together, and treat the combined score as a rough capability count. A framework can have more of these features and still land in a slower FCP band — Pracht has islands, ISR, adapters, and an analyzer, and still measures 1.2–1.5s. The first table explains the bands; this one explains what each framework can do once the page is loaded.
+
+### Combined score
+
+Scoring: ✅ Built-in = 2, 🔶 Opt-in = 1, 🔧 Manual or ❌ None = 0. Scores are capability counts from the labels above, equally weighted, not FCP predictions.
+
+| Framework | FCP levers (max 10) | Other features (max 16) | Total (max 26) |
+| --- | --- | --- | --- |
+| Next | 9 | 6 | 15 |
+| Nuxt | 7 | 13 | 20 |
+| SvelteKit | 3 | 7 | 10 |
+| SolidStart | 1 | 5 | 6 |
+| TanStack Start | 2 | 4 | 6 |
+| Pracht | 7 | 11 | 18 |
+| Waku | 1 | 5 | 6 |
+| Ember | 0 | 2 | 2 |
 
 ---
 
