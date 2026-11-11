@@ -1,10 +1,10 @@
-# Framework feature comparison for the books-demo benchmark
+# Framework capability comparison
 
-> **AI-generated note:** This document was drafted with AI assistance and fact-checked against vendor documentation and this repository. It describes framework capability as of the versions in [Ports tested](#ports-tested), not a new benchmark run. Setup links point to vendor documentation and were link-checked (HTTP 200). Claims flagged as uncertain are listed in [Lower-confidence claims](#lower-confidence-claims).
+> **AI-generated note:** This document was drafted with AI assistance and checked against vendor documentation. It is a check of capability only: nothing here was measured or benchmarked. Capability is described as of the versions in [Versions checked](#versions-checked). Setup links point to vendor documentation and were link-checked (HTTP 200). Claims flagged as uncertain are listed in [Lower-confidence claims](#lower-confidence-claims).
 
-This is the companion to [fcp-groupings.md](./fcp-groupings.md), which explains why mobile Lighthouse FCP clusters into bands. The first table compares nine benchmarked framework builds on the five levers that remove serialized requests from the critical path. The [second table](#other-performance-features) covers seven performance features outside that critical path. **Columns:** the TanStack Start column is split into the React and Solid ports, and the SolidStart column runs Solid 2 RC and Nitro 3 (beta) through `@solidjs/vite-plugin`, not `@solidjs/start` — the SolidStart doc links below (v2 where available) are the closest vendor references. SolidStart v2 is stable on Solid 1; this port deliberately runs Solid 2 (next) without `@solidjs/start`, so the docs may not describe it exactly.
+This document compares what each framework provides, from vendor docs. Measured Lighthouse results live in [fcp-groupings.md](./fcp-groupings.md) and are not used here. The first table compares nine frameworks on the five "FCP levers", the features that remove serialized requests from the critical path; in principle they matter for first paint, but that is not measured here. The [second table](#other-performance-features) covers seven performance features outside that critical path. **Columns:** the TanStack Start column is split into the React and Solid ports, and the SolidStart column runs Solid 2 RC and Nitro 3 (beta) through `@solidjs/vite-plugin`, not `@solidjs/start` — the SolidStart doc links below (v2 where available) are the closest vendor references. SolidStart v2 is stable on Solid 1; this port deliberately runs Solid 2 (next) without `@solidjs/start`, so the docs may not describe it exactly.
 
-Six more frameworks (Astro, React Router, Qwik City, Angular, Marko, Fresh) are scored from vendor docs only in [Additional frameworks](#additional-frameworks-capability-only-not-benchmarked); the [completeness ranking](#completeness-score-and-ranking) covers all 15.
+Six more frameworks (Astro, React Router, Qwik City, Angular, Marko, Fresh) are scored from vendor docs in [Additional frameworks](#additional-frameworks); the [completeness ranking](#completeness-score-and-ranking) covers all 15.
 
 ## Comparison table
 
@@ -33,23 +33,23 @@ The labels describe **framework capability**, not what a particular port chose. 
 
 ## Summary
 
-**Next is the only framework that uses all five levers in this benchmark.** Four ship as defaults or first-party components; CSS inlining needs one flag, and that flag is still `experimental` (🧪). Nuxt and Pracht have first-party support for all five as well — mostly as official modules or per-route options rather than defaults — so they score higher on capability (10 vs 9). Nuxt tops the [completeness ranking](#completeness-score-and-ranking) among benchmarked builds (22 of 24; the non-benchmarked Astro ties it). This port enabled Next's flags and Nuxt's inline styles; the Pracht port enabled CSS inlining, `@pracht/image`, ISG, and prefetch and went manual only for fonts and the data cache. The Vite-based ports are missing at least one lever and generally reach the middle FCP band rather than 0.9s.
+**Next is the only framework that uses all five levers in this repo's builds.** Four ship as defaults or first-party components; CSS inlining needs one flag, and that flag is still `experimental` (🧪). Nuxt and Pracht have first-party support for all five as well — mostly as official modules or per-route options rather than defaults — so they score higher on capability (10 vs 9). Nuxt tops the [completeness ranking](#completeness-score-and-ranking) (22 of 24; Astro ties it). This repo's Next port enabled Next's flags, the Nuxt port enabled inline styles, and the Pracht port enabled CSS inlining, `@pracht/image`, ISG, and prefetch and went manual only for fonts and the data cache. The Vite-based ports are missing at least one lever.
 
-That is a claim about first paint, not overall breadth: Next trails several frameworks on islands, per-route render policy, and deploy adapters; the [second table](#other-performance-features) covers those.
+That is a claim about the five critical-path levers, not overall breadth: Next trails several frameworks on islands, per-route render policy, and deploy adapters; the [second table](#other-performance-features) covers those.
 
-| Framework | What it ships | What this port added or chose | Best measured FCP |
-| --- | --- | --- | --- |
-| Next | All five; three as defaults, CSS inlining and Cache Components as flags | Enabled both flags; added `FastLink` and ThumbHash | 0.9s |
-| Nuxt (max) | Inline styles flag, official font/image modules, cache, prefetch | Enabled inline styles; chose Fontsource over `@nuxt/fonts` | 0.9s (9/22); 1.5s on 9/27 Netlify |
-| SvelteKit | Inline-CSS and prefetch flags, `enhanced-img` module, Vercel ISR | Fonts, server cache; used Unpic/IPX instead of `enhanced-img` | 1.1s (9/17 Netlify); 1.4–1.5s on 9/22 |
-| SolidStart | Router preloads on hover/focus by default (`usePreloadRoute` is the manual API); Nitro `routeRules` available | CSS inline, fonts, images; no cache configured | 1.1–1.7s |
-| TanStack Start (React) | Experimental `inlineCss`, router prefetch, static prerender + cache headers | Used `?inline` CSS, Fontsource, Unpic, own catalog cache | not in the 9/xx runs |
-| TanStack Start (Solid) | Same as React | Same as React | not in the 9/xx runs |
-| Pracht | Inline CSS, `defineFont`, image module, ISG, prefetch | Enabled `inlineCss`, `@pracht/image`, ISG, prefetch; chose Fontsource over `defineFont`; added a catalog cache | 1.2–1.5s |
-| Waku | Experimental prefetch helpers; separate `waku-cache` package | On the optimized branch: fonts, cache; no CSS inline or images | 0.9s (9/17 Vercel); 1.4s optimized and 2.4–2.6s baseline on 9/22 |
-| Ember | None of the five | On the optimized branch: fonts, cache; no CSS inline, images, or prefetch | 1.4s best; 1.4–1.8s optimized and 2.6–2.8s baseline |
+| Framework | What it ships | What this port added or chose |
+| --- | --- | --- |
+| Next | All five; three as defaults, CSS inlining and Cache Components as flags | Enabled both flags; added `FastLink` and ThumbHash |
+| Nuxt | Inline styles flag, official font/image modules, cache, prefetch | Enabled inline styles; chose Fontsource over `@nuxt/fonts` |
+| SvelteKit | Inline-CSS and prefetch flags, `enhanced-img` module, Vercel ISR | Fonts, server cache; used Unpic/IPX instead of `enhanced-img` |
+| SolidStart | Router preloads on hover/focus by default (`usePreloadRoute` is the manual API); Nitro `routeRules` available | CSS inline, fonts, images; no cache configured |
+| TanStack Start (React) | Experimental `inlineCss`, router prefetch, static prerender + cache headers | Used `?inline` CSS, Fontsource, Unpic, own catalog cache |
+| TanStack Start (Solid) | Same as React | Same as React |
+| Pracht | Inline CSS, `defineFont`, image module, ISG, prefetch | Enabled `inlineCss`, `@pracht/image`, ISG, prefetch; chose Fontsource over `defineFont`; added a catalog cache |
+| Waku | Experimental prefetch helpers; separate `waku-cache` package | On the optimized branch: fonts, cache; no CSS inline or images |
+| Ember | None of the five | On the optimized branch: fonts, cache; no CSS inline, images, or prefetch |
 
-The pattern matches the band model: the 0.9s samples mostly have all five levers and a warm cache (Waku's one 0.9s on 9/17 is the exception); the middle band removed the font and data hops but left one request; the baseline band has the full waterfall. The framework label is a proxy for how many of these five features ship in the box — not for how fast the runtime is.
+The framework label is a proxy for how many of these five features ship in the box. In principle, removing a serialized request (a stylesheet, font, or data fetch on the critical path) helps first paint; none of that is measured here.
 
 ## Feature summaries
 
@@ -57,8 +57,8 @@ The pattern matches the band model: the 0.9s samples mostly have all five levers
 
 **Summary:** Nuxt, SvelteKit, and Pracht expose a stable build flag that inlines the stylesheet (✅); Next's `experimental.inlineCss` is 🧪. TanStack Start has an experimental `server.build.inlineCss` flag but is scored 🔧; SolidStart documents none; both can import the CSS with `?inline`. Waku and Ember document no first-party inlining and still link a render-blocking stylesheet.
 
-- **Next** — 🧪 Experimental: [`experimental.inlineCss: true`](https://nextjs.org/docs/app/api-reference/config/next-config-js/inlineCss) in `next.config.ts` (documented as experimental). One flag, and it is the main reason Next's first paint is under a second.
-- **Nuxt** — ✅ 1st-party: [`features.inlineStyles: true`](https://nuxt.com/docs/4.x/guide/going-further/features), but only on the `nuxt-books-optimized-max` branch. The plain `optimized` build leaves component CSS inlined but the global stylesheet linked, and measures 1.1–1.7s across 9/22 and 9/27; the max build reached 0.9s on 9/22 and 1.5s on 9/27 Netlify.
+- **Next** — 🧪 Experimental: [`experimental.inlineCss: true`](https://nextjs.org/docs/app/api-reference/config/next-config-js/inlineCss) in `next.config.ts` (documented as experimental). One flag.
+- **Nuxt** — ✅ 1st-party: [`features.inlineStyles: true`](https://nuxt.com/docs/4.x/guide/going-further/features), but only on this repo's `nuxt-books-optimized-max` branch; the plain `optimized` build leaves the global stylesheet linked.
 - **SvelteKit** — ✅ 1st-party: set [`inlineStyleThreshold`](https://svelte.dev/docs/kit/@sveltejs-kit-vite) high enough (e.g. `Number.POSITIVE_INFINITY`; the docs define it as the max CSS file length in UTF-16 code units) in `vite.config.ts`. One line, but you have to know it exists.
 - **SolidStart** — 🔧 Manual: no first-party inlining flag documented in the [CSS and styling docs](https://docs.solidjs.com/solid-start/v2/building-your-application/css-and-styling). `src/Document.tsx` imports `app.css?inline` (a [Vite asset feature](https://vite.dev/guide/assets#explicit-url-imports)) and renders a `<style>` tag.
 - **TanStack Start (React)** — 🔧 Manual: [`server.build.inlineCss`](https://tanstack.com/start/latest/docs/framework/react/guide/css-styling) (experimental) inlines manifest CSS. This port does not use it; `src/routes/__root.tsx` imports `styles.css?inline` and passes `styles: [{ children: appCss }]` through `head()`.
@@ -67,14 +67,14 @@ The pattern matches the band model: the 0.9s samples mostly have all five levers
 - **Waku** — 🔧 Manual: no first-party inlining documented; the HTML links the built stylesheet ([styling docs](https://waku.gg/#styling), [migration guide](https://waku.gg/guides/migrating-from-nextjs) on CSS).
 - **Ember** — 🔧 Manual: the [Vite guide](https://guides.emberjs.com/release/build-tools/vite) covers build setup only; no first-party inlining documented; `index.html` links `/app/styles/app.css`, and the optimized branch does not change that.
 
-The notable result: inlining is *not* required to leave the 2.5s band. Waku-optimized (1.4s) and Ember-optimized (1.4–1.6s on Vercel/Netlify, 1.8s on Cloudflare) skipped it and still reached the middle band because they removed the font hop. It is not strictly required for 0.9s either: Waku hit 0.9s once (9/17 Vercel, warm cache) without inlining. Inlining does appear in every repeatable 0.9s sample (Next, and Nuxt-max on 9/22), which also have the data cache warm.
+In principle, inlining removes one render-blocking stylesheet request; frameworks without it (Waku, Ember) still link the built stylesheet.
 
 ### 2. Font optimization
 
 **Summary:** Next and Pracht have first-party font primitives (`next/font` and `defineFont()`); Nuxt has the official `@nuxt/fonts` module, which counts the same. Every other framework relies on community `@fontsource` packages (🧪 third-party) or a CDN, and the app adds any preload itself.
 
 - **Next** — ✅ 1st-party: [`next/font/google`](https://nextjs.org/docs/app/api-reference/components/font) self-hosts, subsets, generates the `@font-face`, and preloads at build time. No config beyond using it in the layout.
-- **Nuxt** — ✅ 1st-party: the official [`@nuxt/fonts`](https://nuxt.com/modules/fonts) module resolves the fonts used in CSS, downloads them at build time, serves them from your own origin, injects `@font-face` rules, generates fallback metrics for lower CLS, and can subset. This port does not use it — it imports `@fontsource-variable/geist` manually from `app/assets/css/main.css` — so the capability exists in the framework, even though the measured build took the manual route.
+- **Nuxt** — ✅ 1st-party: the official [`@nuxt/fonts`](https://nuxt.com/modules/fonts) module resolves the fonts used in CSS, downloads them at build time, serves them from your own origin, injects `@font-face` rules, generates fallback metrics for lower CLS, and can subset. This port does not use it — it imports `@fontsource-variable/geist` manually from `app/assets/css/main.css` — so the capability exists in the framework, even though this repo's port took the third-party route.
 - **SvelteKit** — 🧪 Third-party: `@fontsource-variable/geist` imported in `src/routes/layout.css` ([Fontsource](https://fontsource.org)). SvelteKit has no first-party font module and [does not preload fonts by default](https://svelte.dev/docs/kit/performance); the `handle` hook's `resolve(..., { preload })` filter can add font preloads (not used here), so the font is discovered from the inlined stylesheet.
 - **SolidStart** — 🧪 Third-party: `@fontsource-variable/geist` plus an explicit `<link rel="preload" as="font">` with the hashed woff2 URL in `src/Document.tsx` ([static assets](https://docs.solidjs.com/solid-start/v2/building-your-application/static-assets); no first-party font primitive documented — that page covers `/public` and asset imports only).
 - **TanStack Start (React)** — 🧪 Third-party: [`@fontsource`](https://fontsource.org) in `src/styles/global.css`; there is no preload, so the font is discovered from the inlined CSS. No first-party font module is documented; the [production checklist](https://tanstack.com/start/latest/docs/framework/react/guide/production-checklist) only says to check font loading.
@@ -83,7 +83,7 @@ The notable result: inlining is *not* required to leave the 2.5s band. Waku-opti
 - **Waku** — 🧪 Third-party on `optimized` (fontsource import); `main` still loads Geist from `fonts.googleapis.com` with `display=block`. Waku's docs recommend `@fontsource/`* because there is no `next/font` equivalent ([migration guide](https://waku.gg/guides/migrating-from-nextjs)).
 - **Ember** — 🧪 Third-party on `optimized` ([Fontsource](https://fontsource.org) import); `main` uses the same Google Fonts link with `preconnect`. No first-party font module documented (the [Vite guide](https://guides.emberjs.com/release/build-tools/vite) covers build setup only).
 
-Next and Pracht are the only frameworks with a first-party font primitive (Pracht's is lighter than `next/font`). Next uses it here; Pracht's measured build uses Fontsource instead. Every other framework uses a community package (`@fontsource`) or a CDN. Every optimized port that left the 2.5s band had removed the cross-origin font request, either by importing `@fontsource` or by using a first-party font primitive.
+Next and Pracht are the only frameworks with a first-party font primitive (Pracht's is lighter than `next/font`). Next uses it here; the Pracht port uses Fontsource instead. Every other framework uses a community package (`@fontsource`) or a CDN. In principle, self-hosting the font (via either route) removes a cross-origin request from the critical path.
 
 ### 3. Image pipeline
 
@@ -99,7 +99,7 @@ Next and Pracht are the only frameworks with a first-party font primitive (Prach
 - **Waku** — 🧪 Third-party: no first-party pipeline documented: the [migration guide](https://waku.gg/guides/migrating-from-nextjs) says use `<img>` or an image CDN, with no built-in resizing or format negotiation ([static assets](https://waku.gg/#static-assets)). This port rewrites Goodreads' `m` size token to `l` but emits no `srcset`.
 - **Ember** — 🔧 Manual: the [Vite guide](https://guides.emberjs.com/release/build-tools/vite) covers build setup only; no first-party image support documented; this port uses a plain `<img>` with no `srcset` or `sizes`.
 
-This item affects LCP more than FCP, which is why the image-poor ports can still be fast at first paint and slow on the cover.
+In principle this item affects LCP more than FCP.
 
 ### 4. Data and HTML caching
 
@@ -115,7 +115,7 @@ This item affects LCP more than FCP, which is why the image-poor ports can still
 - **Waku** — ✅ 1st-party: [`waku-cache`](https://waku.gg/guides/explicit-caching) is a separate, still-evolving package from the wakujs org; Waku has no core cache by design, and the [migration guide](https://waku.gg/guides/migrating-from-nextjs) says to add caching explicitly. This port does not use it: on `optimized` it hand-writes `src/lib/catalog-cache.ts` plus `src/middleware/html-cache-control.ts` (`main` has neither).
 - **Ember** — 🔧 Manual on `optimized`: `server/catalog-cache.js` plus `public/_headers`; `main` has neither. SSR here comes from `vite-ember-ssr`, a community, experimental package (not official; [FastBoot](https://github.com/ember-fastboot/fastboot) is the official SSR path), which provides no data cache. WarpDrive/EmberData ships a first-party client request cache with expiry policies ([`CachePolicy` / `DefaultCachePolicy`](https://warp-drive.io/guides/configuration/advanced); [repo](https://github.com/warp-drive-data/warp-drive)), but no server, HTML, or edge caching; this port does not use it.
 
-The Cloudflare results in the 1.7–2.0 band are the ones to watch here. A cache that lives in isolate memory looks fine on Vercel and misses on Workers. Persistent KV/Blobs/Cache-API storage is the likely fix; the Cloudflare optimized cells measured 1.4–1.8s on 9/22.
+Design note: a cache that lives in isolate memory does not persist across isolates on a host like Workers, so a portable setup needs persistent KV, Blobs, or Cache-API storage; this repo hand-writes host-specific caches for that reason.
 
 ### 5. Route prefetching
 
@@ -131,13 +131,13 @@ The Cloudflare results in the 1.7–2.0 band are the ones to watch here. A cache
 - **Waku** — 🧪 Experimental: [`router.prefetch()`](https://waku.gg/guides/navigation-prefetching) has no `unstable_` prefix, but the guide as a whole is marked experimental; the `Link` props are `unstable_prefetchOnEnter` / `unstable_prefetchOnView`, and `Link` prefetch is off unless a prop is set. This port uses the props on `FastLink` and `HoverPrefetchLink`.
 - **Ember** — 🔧 Manual: no first-party prefetch documented: the [linking-between-routes guide](https://guides.emberjs.com/release/routing/linking-between-routes/) describes `<LinkTo>` without prefetching; it must be added with a custom modifier or service.
 
-Prefetching barely moves Lighthouse FCP because it mostly helps the *next* navigation, not the first paint. It matters for how fast the app feels once someone starts clicking, which is the caveat in the companion [FCP analysis](./fcp-groupings.md#caveats).
+In principle prefetching helps the *next* navigation rather than the first paint, so it matters for how fast the app feels once someone starts clicking.
 
 ## Other performance features
 
-The five levers explain the FCP bands. They are not the whole feature space. This table covers seven capabilities that matter for later interaction, for deployment, or for day-to-day performance work — several of which Next does not have, or only approximates.
+The five levers are not the whole feature space. This table covers seven capabilities that matter for later interaction, for deployment, or for day-to-day performance work — several of which Next does not have, or only approximates.
 
-> **Scope note:** These labels describe framework capability, drawn from vendor docs (links checked 2026-11-09). Nothing here was measured in this benchmark, so do not read FCP or INP numbers out of this table.
+> **Scope note:** These labels describe framework capability, drawn from vendor docs (links checked). Nothing here was measured, so do not read FCP or INP numbers out of this table.
 
 | Item | Next | Nuxt | SvelteKit | SolidStart | TanStack Start (React) | TanStack Start (Solid) | Pracht | Waku | Ember |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -212,7 +212,7 @@ The honest reading is that **Next's strength is server rendering, not breadth**.
 - **Waku** — 🧪 Third-party: React; the [React Compiler](https://react.dev/learn/react-compiler) is enabled via a Babel preset (enabled on both `main` and `optimized` in this port) and does not change the re-render model.
 - **Ember** — ✅ 1st-party: `@tracked` [autotracking](https://guides.emberjs.com/release/in-depth-topics/autotracking-in-depth/).
 
-This is an interaction-cost property, not a first-paint one. It shows up in INP and memory on long-lived pages, not in the FCP bands.
+This is an interaction-cost property, not a first-paint one. In principle it shows up in INP and memory on long-lived pages, not in first paint.
 
 ### 10. Built-in bundle analysis
 
@@ -247,7 +247,7 @@ This is an interaction-cost property, not a first-paint one. It shows up in INP 
 **Summary:** Nuxt, SolidStart, and TanStack Start use Nitro presets; SvelteKit, Pracht, and Waku ship first-party adapters. All cover Node, Vercel, Netlify, and Cloudflare. Next has a stable Adapter API (`adapterPath`, v16.2+) with verified Vercel and Bun adapters, but Cloudflare and Netlify run on their own integrations, and Ember documents no equivalent. That gap is one reason this repo hand-writes host-specific caches.
 
 - **Next** — 🧪 Third-party: a stable [Adapter API](https://nextjs.org/docs/app/api-reference/config/next-config-js/adapterPath) (`adapterPath`, v16.2+) with verified Vercel and Bun adapters; Cloudflare and Netlify "are working on verified adapters" ([deploying](https://nextjs.org/docs/app/getting-started/deploying)). They use their own integrations today: [OpenNext](https://opennext.js.org/) for Cloudflare and `@netlify/plugin-nextjs` for Netlify in this port. [`output: 'standalone'`](https://nextjs.org/docs/app/api-reference/config/next-config-js/output) covers self-hosting, though this port does not set it.
-- **Nuxt** — ✅ 1st-party: Nitro [`presets`](https://nitro.build/deploy) cover every host in this benchmark.
+- **Nuxt** — ✅ 1st-party: Nitro [`presets`](https://nitro.build/deploy) cover every host this repo targets (Node, Vercel, Netlify, Cloudflare).
 - **SvelteKit** — ✅ 1st-party: [`adapters`](https://svelte.dev/docs/kit/adapters) for Node, Vercel, Netlify, Cloudflare, and static output.
 - **SolidStart** — ✅ 1st-party: Nitro v3 presets, or first-party `@cloudflare/vite-plugin` / `@netlify/vite-plugin` ([deployment plugins](https://docs.solidjs.com/solid-start/v2/guides/deployment-plugins)).
 - **TanStack Start (React)** — ✅ 1st-party: Nitro presets plus first-party Cloudflare and Netlify Vite plugins ([hosting](https://tanstack.com/start/latest/docs/framework/react/guide/hosting)); this port implements all three branches.
@@ -268,11 +268,11 @@ No scores; capabilities not in either table.
 - **Pracht** — see the [performance guide](https://pracht.resynapse.dev/docs/performance).
 - **Waku** — instant navigation ([v1 RC post](https://waku.gg/blog/waku-v1-rc)).
 
-Read the two tables together, and treat the [completeness score](#completeness-score-and-ranking) as a rough capability count. A framework can have more of these features and still land in a slower FCP band — Pracht has islands, ISG, adapters, and an analyzer, and still measures 1.2–1.5s. The first table explains the bands; this one explains what each framework can do once the page is loaded.
+Read the two tables together, and treat the [completeness score](#completeness-score-and-ranking) as a rough capability count. The first table covers the critical-path levers; this one covers what each framework can do once the page is loaded.
 
-## Additional frameworks (capability only, not benchmarked)
+## Additional frameworks
 
-**No port of these six frameworks exists in this repo and no FCP was measured.** Labels come from vendor documentation only, at the versions listed under each framework, using the same legend and scoring as above. They are not comparable to FCP bands.
+Labels for these six frameworks come from vendor documentation and npm, at the versions listed under each framework, using the same legend and scoring as above. No port of them exists in this repo.
 
 **Why these frameworks:** widely used alternatives with an SSR/SSG story. Not included: Gatsby, Eleventy, Remix v2 (superseded by React Router), Analog, RedwoodSDK, and SvelteKit-adjacent projects.
 
@@ -438,35 +438,35 @@ Unscored extras:
 
 ## Completeness score and ranking
 
-Completeness % = (FCP levers + other features) / 24, rounded to a whole percent. It measures the breadth of first-party and ecosystem performance features, not speed: items are unweighted, rows are not normalized against each other, and the islands row merges partial hydration, server islands, and lazy slices (best label). The FCP numbers are not used. Ties share a rank (1, 1, 3) and keep the earlier column order. Scores use the revised rubric and are not comparable with earlier versions.
+Completeness % = (FCP levers + other features) / 24, rounded to a whole percent. It measures the breadth of first-party and ecosystem performance features, not speed: items are unweighted, rows are not normalized against each other, and the islands row merges partial hydration, server islands, and lazy slices (best label). No measurements are used. Ties share a rank (1, 1, 3) and keep the earlier column order. Scores use the revised rubric and are not comparable with earlier versions.
 
 To recompute: ✅ = 2, 🧪 = 1, 🔧 = 0; sum each table's score row.
 
-| Rank | Framework | FCP levers (max 10) | Other features (max 14) | Total (max 24) | Completeness | Benchmarked? |
-| --- | --- | --- | --- | --- | --- | --- |
-| 1 | Nuxt | 10 | 12 | 22 | 92% | Yes |
-| 1 | Astro | 10 | 12 | 22 | 92% | Capability only |
-| 3 | Pracht | 10 | 10 | 20 | 83% | Yes |
-| 4 | Qwik City | 8 | 10 | 18 | 75% | Capability only |
-| 5 | Next | 9 | 8 | 17 | 71% | Yes |
-| 5 | Angular (SSR) | 10 | 7 | 17 | 71% | Capability only |
-| 7 | SvelteKit | 7 | 9 | 16 | 67% | Yes |
-| 8 | TanStack Start (Solid) | 6 | 7 | 13 | 54% | Yes |
-| 8 | Waku | 5 | 8 | 13 | 54% | Yes |
-| 10 | TanStack Start (React) | 6 | 6 | 12 | 50% | Yes |
-| 11 | SolidStart | 4 | 7 | 11 | 46% | Yes |
-| 12 | React Router | 5 | 4 | 9 | 38% | Capability only |
-| 13 | Marko | 3 | 5 | 8 | 33% | Capability only |
-| 14 | Fresh | 2 | 4 | 6 | 25% | Capability only |
-| 15 | Ember | 1 | 3 | 4 | 17% | Yes |
+| Rank | Framework | FCP levers (max 10) | Other features (max 14) | Total (max 24) | Completeness |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Nuxt | 10 | 12 | 22 | 92% |
+| 1 | Astro | 10 | 12 | 22 | 92% |
+| 3 | Pracht | 10 | 10 | 20 | 83% |
+| 4 | Qwik City | 8 | 10 | 18 | 75% |
+| 5 | Next | 9 | 8 | 17 | 71% |
+| 5 | Angular (SSR) | 10 | 7 | 17 | 71% |
+| 7 | SvelteKit | 7 | 9 | 16 | 67% |
+| 8 | TanStack Start (Solid) | 6 | 7 | 13 | 54% |
+| 8 | Waku | 5 | 8 | 13 | 54% |
+| 10 | TanStack Start (React) | 6 | 6 | 12 | 50% |
+| 11 | SolidStart | 4 | 7 | 11 | 46% |
+| 12 | React Router | 5 | 4 | 9 | 38% |
+| 13 | Marko | 3 | 5 | 8 | 33% |
+| 14 | Fresh | 2 | 4 | 6 | 25% |
+| 15 | Ember | 1 | 3 | 4 | 17% |
 
-Rough capability count only, not an FCP prediction. Among benchmarked builds the FCP-lever scores are Nuxt 10, Pracht 10, Next 9; the additional frameworks are capability only.
+Rough capability count only, not a performance prediction.
 
-## Ports tested
+## Versions checked
 
-Version labels below come from each port's `package.json` as of 2026-11-09.
+Versions below come from each port's `package.json` in this repo (capability was checked against vendor docs for these versions) and from npm.
 
-| Port | Version tested | Build notes |
+| Framework | Version checked | Notes |
 | --- | --- | --- |
 | Next | `next` 16.4.0-canary.8 | Cache Components, `inlineCss`, `reactCompiler`, `partialPrefetching` enabled |
 | Nuxt | `nuxt` 4.6.0 (nightly), compatibilityVersion 5 | Vercel runtime cache; `routeRules`; Fontsource fonts; no `@nuxt/fonts` |
@@ -474,21 +474,21 @@ Version labels below come from each port's `package.json` as of 2026-11-09.
 | TanStack Start (React) | `@tanstack/react-start` 1.169.1 (pinned; latest 1.169.5), Vite ^8.0.0 | `?inline` CSS; Unpic; own catalog cache |
 | TanStack Start (Solid) | `@tanstack/solid-start` 2.0.0-rc.8 (rc tag now rc.10), Vite ^8.0.0 | `?inline` CSS; hand-written `@font-face`; own catalog cache |
 | Pracht | `@pracht/core` ^0.18.0 (latest 0.21.0), Vite ^8.3.2 | `inlineCss`, `@pracht/image`, ISG, prefetch; Fontsource fonts |
-| Waku | `waku` 1.0.0-rc.0 (latest rc.4) | `optimized` branch only; no CSS inline or images |
+| Waku | `waku` 1.0.0-rc.0 (latest rc.4) | `optimized` branch; no CSS inline or images |
 | SolidStart | Not `@solidjs/start`: `solid-js` ^2.0.0-rc.6, `@solidjs/router` ^2.0.0-next.21, Nitro 3.0.260903-beta (npm latest 3.0.261103-rc) via `@solidjs/vite-plugin` | Preload helper only; no cache configured |
 | Ember | `ember-source` ~7.2.0 | Embroider/Vite + `vite-ember-ssr`, not FastBoot |
 
 ## Lower-confidence claims
 
 - TanStack Start (Solid)'s `<Hydrate>` guide has prose copied from the React variant, and its runtime behavior was not confirmed by building the Solid port.
-- Neither TanStack Start port was rebuilt with `server.build.inlineCss` enabled; the TanStack inlineCss flag is experimental in the docs, and the cell is scored 🔧 per the project owner's label.
+- TanStack's `server.build.inlineCss` flag is experimental in the docs, and the cell is scored 🔧 per the project owner's label.
 - TanStack Start (Solid) has no ISR guide; its caching label leans on the React ISR guide and the static-prerendering docs.
 - The 🔧 labels for the TanStack ports' fonts, images, analysis, and scripts mean the docs make no first-party mention — not that these cannot be added by hand. The TanStack production checklist only tells readers to inspect fonts, images, and third-party scripts, not to use a primitive.
 - Pracht and Waku scripts (🔧): the linked performance and migration pages do not mention third-party scripts; the label rests on no primitive being documented there.
 - Ember cells (🔧) rest on the Ember Vite guide (build setup only) and the guides index showing no page on CSS, fonts, images, scripts, or analysis; no more topical Ember or Embroider page was found; the older cli.emberjs.com asset-compilation page is deprecated and covers the classic pipeline, so it is not cited.
 - Cells where the project owner's label differs from what the linked docs show (kept as given): SolidStart data caching 🔧 (Nitro `routeRules` / `defineCachedHandler`, [nitro.build/docs/cache](https://nitro.build/docs/cache); Solid Router [`query`](https://docs.solidjs.com/solid-router/reference/data-apis/query)); SvelteKit data caching 🔧 (`adapter-vercel` [`isr`](https://svelte.dev/docs/kit/adapter-vercel), Vercel only); Next per-route render modes 🔧 ([route segment config](https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config), removed under Cache Components); Nuxt islands 🧪 (documented [lazy hydration](https://nuxt.com/docs/4.x/directory-structure/app/components) has no experimental label); TanStack Start islands 🔧 (experimental [`<Hydrate>`](https://tanstack.com/start/latest/docs/framework/react/guide/deferred-hydration)) and CSS inlining 🔧 (experimental [`server.build.inlineCss`](https://tanstack.com/start/latest/docs/framework/react/guide/css-styling)); Waku data caching ✅ ([`waku-cache`](https://waku.gg/guides/explicit-caching) is a separate, still-evolving package, and the migration guide says to add caching explicitly); Ember data caching 🔧 (WarpDrive ships a first-party client request cache, [docs](https://warp-drive.io/guides/configuration/advanced)).
 - Nuxt lazy hydration is labelled documented with no experimental label in the linked page, not "stable" by an explicit vendor statement.
-- Additional frameworks have no port and no measurement; every label is from vendor docs under the same rubric. Qwik and Astro rows were judged against the rubric as noted in their bullets.
+- Additional frameworks have no port; every label is from vendor docs under the same rubric. Qwik and Astro rows were judged against the rubric as noted in their bullets.
 - Qwik v2 (2.0.0-rc.5) differences are unverified; the Qwik labels use v1 docs. The Vercel adapter's Node variant and the Cloudflare Workers deployment page were not checked.
 - Fresh build-time prerender exists only as an open PR and is not credited.
 - Angular multi-host portability (🔧) is a judgment from the documented hosts; the Angular font-inlining label (✅) is weak because only Google/Adobe CSS inlining is documented.
@@ -496,9 +496,9 @@ Version labels below come from each port's `package.json` as of 2026-11-09.
 - React Router naming: "v7" in older material is the same framework mode that docs now call v8 (npm latest 8.5.1); minimum versions for prerender and RSC are not stated in its docs.
 - Astro server-islands and Angular incremental-hydration/render-mode stability labels are UNSOURCED on the fetched pages; Astro's Svelte/Vue integration pages were not read.
 - Next `worker` strategy and Bun adapter status are taken from the linked docs as of this edit; Cloudflare/Netlify verified adapters are described there as in progress.
-- Pracht was tested on 0.18.0 (latest 0.21.0). TanStack Start React is on stable 1.169.x; only the Solid port (2.0.0-rc.8) and the SolidStart pieces are pre-release. Vendor docs can change week to week.
+- Pracht was checked on 0.18.0 (latest 0.21.0). TanStack Start React is on stable 1.169.x; only the Solid port (2.0.0-rc.8) and the SolidStart pieces are pre-release. Vendor docs can change week to week.
 - SolidStart is not `@solidjs/start` at all here: Solid 2 RC plus Nitro 3 beta through `@solidjs/vite-plugin`. The doc links in this file are references, not a description of this port's build; SolidStart v2 itself is stable on Solid 1.
 
 ---
 
-*Data source: the FCP values in the comparison tables come from the measurements in [fcp-groupings.md](./fcp-groupings.md) and the Lighthouse screenshots in* `docs/`*, taken between 9/16 and 9/27. “Best measured FCP” is the fastest mobile Lighthouse result for that framework across those runs. The [other performance features](#other-performance-features), [ports tested](#ports-tested), and setup links were checked on 2026-11-09, not re-measured.*
+*Capability labels, versions, and setup links were checked against vendor docs and npm; nothing in this document was measured.*
