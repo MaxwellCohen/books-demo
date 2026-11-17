@@ -11,3 +11,10 @@ pracht-books/
 
 # Local Netlify folder
 .netlify
+
+# Local secrets and benchmark state
+.env
+.env.*
+!.env.example
+bench/.psi-usage.json
+bench/results/
