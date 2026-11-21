@@ -257,3 +257,5 @@ FCP is quantized by the number of serialized requests on the critical path; self
 ---
 
 *LLM-generated note (repeated for visibility): this analysis was produced by an AI language model on 2026-11-08 from the existing `docs/*.png` Lighthouse screenshots and the source code in this repository. It did not run new measurements. The setup links were checked against vendor documentation on the same date; every URL returned HTTP 200. Verify the numbers against the source spreadsheet before publishing.*
+
+
