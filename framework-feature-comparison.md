@@ -60,8 +60,6 @@ That matches the **9** in the score row. The second table works the same way ove
 
 Inlining puts the page's CSS in a `<style>` tag in the HTML instead of linking a stylesheet. In principle that removes one render-blocking stylesheet request from the critical path; frameworks without it (Waku, Ember) still link the built stylesheet.
 
-**At a glance:** Nuxt, SvelteKit, and Pracht expose a stable build flag that inlines the stylesheet (✅); Next's `experimental.inlineCss` is 🧪. TanStack Start's experimental `server.build.inlineCss` flag is also 🧪. SolidStart documents no inlining flag (🔧); it and TanStack Start can both import the CSS with `?inline` by hand. Waku and Ember document no first-party inlining and still link a render-blocking stylesheet.
-
 ### How to enable it
 
 #### 🧪 Next — Experimental
@@ -177,8 +175,6 @@ Nothing to enable. The [Vite guide](https://guides.emberjs.com/release/build-too
 ### What it is and why it matters
 
 A web font is discovered late: the browser finds it only after the CSS that names it has loaded. Font optimization self-hosts the files, generates the `@font-face` rules, and can preload the file. In principle, self-hosting the font (via either route) removes a cross-origin request from the critical path.
-
-**At a glance:** Next and Pracht have first-party font primitives (`next/font` and `defineFont()`); Nuxt has the official `@nuxt/fonts` module, which counts the same. Every other framework relies on community `@fontsource` packages (🧪 third-party) or a CDN, and the app adds any preload itself. Pracht's primitive is lighter than `next/font`.
 
 ### How to enable it
 
@@ -312,8 +308,6 @@ Import the font from [Fontsource](https://fontsource.org) on `optimized`; `main`
 ### What it is and why it matters
 
 An image pipeline resizes and re-encodes images per device, emits `srcset`/`sizes`, and often adds lazy loading and a blur placeholder. In principle this item affects LCP more than FCP.
-
-**At a glance:** Next has a built-in image component and optimizer; Nuxt has an official module (`@nuxt/image`). SvelteKit has the first-party `@sveltejs/enhanced-img`, Pracht has `@pracht/image`, and the Solid team publishes `@solidjs/image` (documented in its README, not on docs.solidjs.com; this SolidStart port uses a custom srcset helper instead). TanStack Start wires Unpic (🧪 third-party) with a host optimizer; Waku is scored 🧪 (docs: `<img>` or an image CDN). Ember documents no first-party image support; a community addon exists (🧪).
 
 ### How to enable it
 
@@ -451,8 +445,6 @@ No first-party image support is documented (the [Vite guide](https://guides.embe
 ### What it is and why it matters
 
 Caching stores the result of a catalog query or a rendered HTML page so a request does not hit the database again. In principle it shortens time to first byte. A cache that lives in isolate memory does not persist across isolates on a host like Workers, so a portable setup needs persistent KV, Blobs, or Cache-API storage; this repo hand-writes host-specific caches for that reason.
-
-**At a glance:** Next and Nuxt have first-class data/caching models. Pracht offers ISG as a per-route rendering mode, while TanStack Start expresses ISR through prerender plus cache headers. SvelteKit has `setHeaders` cache headers and per-route prerender on any host, plus HTML ISR on Vercel. Waku has no cache in core by design; its docs point to the separate first-party `waku-cache` library (scored ✅ as a first-party package), which this port does not use. Ember documents no first-party server/HTML cache. The Waku and Ember ports both hand-write host-aware caches on `optimized`. SolidStart could use Nitro `routeRules`, but this port configures none and still hits Postgres on a cold request. SolidStart and Ember score 🔧 here despite the host- or Nitro-specific pieces noted below.
 
 ### How to enable it
 
@@ -608,8 +600,6 @@ On `optimized`, `server/catalog-cache.js` plus `public/_headers` (the header for
 
 Prefetching loads a route's code and data before the click, on hover, focus, or when the link enters the viewport. In principle it helps the *next* navigation rather than the first paint, so it matters for how fast the app feels once someone starts clicking.
 
-**At a glance:** Next, Nuxt, and Pracht prefetch by default. SvelteKit, SolidStart (default-on in Solid Router v1 and the prerelease this port pins, opt-in via `preloadLinks` in Solid Router 2.0 stable), TanStack Start, and Waku also have stable first-party prefetch (✅, opt-in); Waku's stable path is the manual `router.prefetch()`, while its `Link` prefetch props are experimental. Ember's docs describe no prefetch behavior for route links.
-
 ### How to enable it
 
 #### ✅ Next — 1st-party
@@ -744,8 +734,6 @@ The honest reading is that **Next's strength is server rendering, not breadth**.
 
 Normally every interactive component on a page hydrates, so its JavaScript downloads and runs. Islands, deferred hydration, and server islands keep most of the page as plain HTML and hydrate (or render on demand) only the parts that need it. This merged row takes each framework's best label across the partial-hydration and server-island capabilities.
 
-**At a glance:** Pracht is the only framework that makes islands a per-route hydration mode, and it also has named server islands. Nuxt ships documented lazy hydration for `Lazy*` components (on by default; the switch is `experimental.lazyHydration`) plus experimental server components and `<NuxtIsland>`. Both TanStack Start variants have an experimental `<Hydrate>` component that defers hydration per subtree (🧪), and the React variant has experimental Server Components. Waku's lazy slices are documented as similar to server islands (✅). Next's Cache Components are a server-island approximation (✅ on the server-islands side). SvelteKit and Ember have no equivalent; SolidStart has no islands, but Solid 2's `@solidjs/web` ships experimental server components (🧪, a preview outside the 2.0 stability guarantees).
-
 ### How to enable it
 
 #### ✅ Next — 1st-party
@@ -848,8 +836,6 @@ Nothing to enable: no first-party partial hydration is documented; SSR is app-wi
 ### What it is and why it matters
 
 A render mode decides when a route's HTML is produced: at build time (static), per request (SSR), on the client (SPA), or revalidated on a schedule. A per-route switch lets a mostly static site keep one dynamic page without changing the whole app.
-
-**At a glance:** Nuxt, SvelteKit, and Pracht let you pick static, cached, SSR, or SPA behaviour per route. Waku has a per-route `render: 'static' | 'dynamic'` switch; it has no cached/ISR mode, and disabling SSR for a page is the unstable `unstable_noSsr`. Both TanStack Start variants have per-route `ssr: true | false | 'data-only'`; SolidStart configures prerendering at the app level and Nitro `routeRules` per route, without a per-route SSR/SPA switch. Next has stable per-route segment-config exports (✅): `dynamic` and `revalidate` without Cache Components; with Cache Components the `dynamic`/`revalidate`/`fetchCache`/`dynamicParams` exports are removed and `ensureStatic` is the per-route option. Ember documents no per-route switch.
 
 ### How to enable it
 
@@ -977,8 +963,6 @@ SSR is app-wide in this port (`emberSsr()` from community `vite-ember-ssr`; offi
 
 A `<picture>` element lets the browser choose between formats (AVIF, WebP, JPEG) and, with `<source media>`, between differently cropped images per breakpoint. That second use is "art direction". It matters because bytes and crops both change what the user waits for and sees.
 
-**At a glance:** Nuxt, SvelteKit, and SolidStart (via the Solid team's `@solidjs/image`) emit a `<picture>` with modern formats and sizes, but none does breakpoint art direction. Next and Pracht give `getImageProps()` helpers that return plain attributes; you hand-write the `<picture>`. TanStack Start documents no first-party `<picture>` helper; a `<picture>` would be hand-written (Unpic's third-party `<Source>` component can generate the `<source>` tags). Neither the TanStack nor the SolidStart port emits one; the SolidStart port builds its own srcset rather than using `@solidjs/image`. Waku and Ember document nothing first-party.
-
 ### How to enable it
 
 #### 🔧 Next — Manual
@@ -1061,8 +1045,6 @@ The [Vite guide](https://guides.emberjs.com/release/build-tools/vite) covers bui
 ### What it is and why it matters
 
 Fine-grained reactivity tracks dependencies per value, so a state change re-runs only the effects or components that read it; Solid, Svelte, and Marko go furthest and write straight to the affected DOM nodes, while Vue and Angular still update at component granularity (Vue diffs a compiler-optimised virtual DOM) and Qwik falls back to a vDOM for structural changes. Component-level reactivity (React) re-renders the component and its subtree and diffs the result. This is an interaction-cost property, not a first-paint one: in principle it shows up in INP and memory on long-lived pages.
-
-**At a glance:** Vue, Svelte, Solid, and Ember track dependencies at the value level. The React-based ports (Next, Waku, TanStack Start React) re-render component subtrees and score 🧪 only through community signals libraries; React Compiler memoizes work but does not change the model. Pracht's Preact signals are the Preact team's official `@preact/signals` package (✅, counted like Vue's reactivity for Nuxt).
 
 ### How to enable it
 
@@ -1153,8 +1135,6 @@ export default class SidebarService extends Service {
 
 A bundle analyzer shows which modules make up each JavaScript bundle so you can find large dependencies. Only the Next port has an analysis step configured (`pnpm analyze` runs `next build && next experimental-analyze`, the older name for the command the docs now call `next analyze`); none of the other ports do, so the rest of this section is capability only. Vite DevTools ships [DevTools for Rolldown](https://devtools.vite.dev/rolldown/#features) (`@vitejs/devtools-rolldown`), an ecosystem-level analyzer for production builds on Vite 8+. It is available to the ports on Vite 8 (not the Qwik and Fresh ports, which are on Vite 7) and is not counted in these labels.
 
-**At a glance:** Next and Pracht ship an analyzer command (✅); Nuxt's is experimental (🧪). For the remaining frameworks, including Ember on Embroider and Vite, the only route is a community visualizer plugin (🧪 third-party); none of the ports configures one.
-
 ### How to enable it
 
 #### ✅ Next — 1st-party
@@ -1222,8 +1202,6 @@ Embroider's [Analyzing Bundles](https://github.com/embroider-build/embroider/blo
 ### What it is and why it matters
 
 Third-party scripts (analytics, chat widgets, tag managers) compete with your own code. A loading strategy says when each one loads, for example before hydration, after hydration, or at browser idle time. No first-party script primitive is documented for most frameworks here, so ordering and deferral are left to the app.
-
-**At a glance:** Next and Pracht have a first-party script component with loading strategies; Nuxt has a separate official module with proxying. SvelteKit's performance page points to Partytown's SvelteKit integration (🧪 third-party). No first-party script primitive is documented for the rest.
 
 ### How to enable it
 
@@ -1310,8 +1288,6 @@ The [Vite guide](https://guides.emberjs.com/release/build-tools/vite) covers bui
 ### What it is and why it matters
 
 A host adapter builds your app into the shape a platform expects (Node server, serverless functions, edge Worker). A portable framework ships adapters or presets for several hosts, so you can switch without rewriting. That gap is one reason this repo hand-writes host-specific caches.
-
-**At a glance:** Nuxt, SolidStart, and TanStack Start use Nitro presets; SvelteKit, Pracht, and Waku ship first-party adapters. Nitro is first-party only for Nuxt: SolidStart and TanStack Start rely on Nitro and host-maintained Vite plugins, so they score 🧪 like React Router and Next. All of these cover Node, Vercel, Netlify, and Cloudflare. Next has a stable Adapter API (`adapterPath`, v16.2+) with verified Vercel and Bun adapters, but Cloudflare and Netlify run on their own integrations, and Ember documents no equivalent.
 
 ### How to enable it
 
