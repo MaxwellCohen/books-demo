@@ -841,7 +841,7 @@ A render mode decides when a route's HTML is produced: at build time (static), p
 
 #### ✅ Next — 1st-party
 
-Next documents stable per-route exports: without Cache Components, `dynamic` and `revalidate` ([previous-model guide](https://nextjs.org/docs/app/guides/caching-without-cache-components#route-segment-config)); with Cache Components, [`ensureStatic`](https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config/ensureStatic) (v16.4.0+, not in this port's pinned canary) plus `'use cache'` boundaries (see [section 4](#4-data-and-html-caching)). This port enables Cache Components, where `dynamic`, `revalidate`, `fetchCache`, and `dynamicParams` are removed ([route segment config](https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config)). No inline example (unsourced).
+Next documents stable per-route exports: without Cache Components, `dynamic` and `revalidate` ([previous-model guide](https://nextjs.org/docs/app/guides/caching-without-cache-components#route-segment-config)); with Cache Components, [`ensureStatic`](https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config/ensureStatic) (v16.4.0+; this port sets `ensureStatic = 'shell'` in the root layout) plus `'use cache'` boundaries (see [section 4](#4-data-and-html-caching)). This port enables Cache Components, where `dynamic`, `revalidate`, `fetchCache`, and `dynamicParams` are removed ([route segment config](https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config)). No inline example (unsourced).
 
 #### ✅ Nuxt — 1st-party
 
