@@ -716,17 +716,17 @@ The five levers are not the whole feature space. This table covers seven capabil
 | Islands / partial hydration / lazy slices | ✅ 1st-party | 🧪 Experimental | 🔧 Manual | 🧪 Experimental | 🧪 Experimental | 🧪 Experimental | ✅ 1st-party | ✅ 1st-party | 🔧 Manual |
 | Per-route render modes | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual |
 | Art-directed / modern-format images (`<picture>`) | 🔧 Manual | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual |
-| Fine-grained client reactivity | 🧪 Third-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🧪 Third-party | ✅ 1st-party | ✅ 1st-party | 🧪 Third-party | ✅ 1st-party |
+| Fine-grained client reactivity | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party |
 | Built-in bundle analysis | ✅ 1st-party | 🧪 Experimental | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party |
 | Third-party script strategies | ✅ 1st-party | ✅ 1st-party | 🧪 Third-party | 🔧 Manual | 🔧 Manual | 🔧 Manual | ✅ 1st-party | 🔧 Manual | 🔧 Manual |
 | Portable multi-host deployment | 🧪 Third-party | ✅ 1st-party | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual |
-| **Score (max 14)** | **10** | **12** | **10** | **9** | **6** | **7** | **12** | **8** | **3** |
+| **Score (max 14)** | **11** | **12** | **10** | **9** | **7** | **7** | **12** | **9** | **3** |
 
 > **Scoring note:** Islands, partial hydration, and server islands/lazy slices are one row. Each framework gets its best label across those capabilities.
 
-**Summary:** Nuxt and Pracht tie for the widest set (12 of 14). Nuxt has per-route rules, documented lazy hydration and experimental islands (🧪), modern-format images, first-party reactivity, an experimental analyzer, an official script module, and Nitro presets. Pracht is the only framework where islands are a per-route hydration mode, and it also has server islands, ISG, an analyzer, a script component with loading strategies, and first-party adapters. TanStack Start has per-route SSR control, experimental deferred hydration (🧪), and (React only) experimental Server Components. SvelteKit sits in the middle: strong routing and deploy primitives, but no islands and no built-in script or analysis tooling. SolidStart has the same gaps in script and analysis tooling, but gets modern-format `<picture>` output from the Solid team's `@solidjs/image` and experimental server components in Solid 2 (🧪); its deploy targets rely on Nitro and host-maintained plugins (🧪). Waku gets per-route rendering, adapters, and lazy slices, but its React runtime gives it no islands or fine-grained reactivity. Ember has autotracking and only a community analyzer beyond that.
+**Summary:** Nuxt and Pracht tie for the widest set (12 of 14). Nuxt has per-route rules, documented lazy hydration and experimental islands (🧪), modern-format images, first-party reactivity, an experimental analyzer, an official script module, and Nitro presets. Pracht is the only framework where islands are a per-route hydration mode, and it also has server islands, ISG, an analyzer, a script component with loading strategies, and first-party adapters. TanStack Start has per-route SSR control, experimental deferred hydration (🧪), and (React only) experimental Server Components. SvelteKit sits in the middle: strong routing and deploy primitives, but no islands and no built-in script or analysis tooling. SolidStart has the same gaps in script and analysis tooling, but gets modern-format `<picture>` output from the Solid team's `@solidjs/image` and experimental server components in Solid 2 (🧪); its deploy targets rely on Nitro and host-maintained plugins (🧪). Waku gets per-route rendering, adapters, lazy slices, and the React Compiler. Ember has autotracking and only a community analyzer beyond that.
 
-The honest reading is that **Next's strength is server rendering, not breadth**. It has React Server Components, Cache Components/PPR, and cache tags, which these tables do not try to score. It scores 🔧 on art-direction ergonomics, and 🧪 on deploy adapters and reactivity.
+The honest reading is that **Next's strength is server rendering, not breadth**. It has React Server Components, Cache Components/PPR, and cache tags, which these tables do not try to score. It scores 🔧 on art-direction ergonomics and 🧪 on deploy adapters.
 
 ## 6. Islands, partial hydration, and lazy slices
 
@@ -1044,13 +1044,13 @@ The [Vite guide](https://guides.emberjs.com/release/build-tools/vite) covers bui
 
 ### What it is and why it matters
 
-Fine-grained reactivity tracks dependencies per value, so a state change re-runs only the effects or components that read it; Solid, Svelte, and Marko go furthest and write straight to the affected DOM nodes, while Vue and Angular still update at component granularity (Vue diffs a compiler-optimised virtual DOM) and Qwik falls back to a vDOM for structural changes. Component-level reactivity (React) re-renders the component and its subtree and diffs the result. This is an interaction-cost property, not a first-paint one: in principle it shows up in INP and memory on long-lived pages.
+Fine-grained reactivity limits how much work a state change causes, so only the parts of the UI that read the changed value update. Solid, Svelte, and Marko go furthest and write straight to the affected DOM nodes; Vue and Angular update at component granularity (Vue diffs a compiler-optimised virtual DOM); Qwik falls back to a vDOM for structural changes. React gets there with the first-party [React Compiler](https://react.dev/learn/react-compiler), which memoizes components, values, and JSX at build time so a state change skips the parts of the tree whose inputs did not change. This is an interaction-cost property, not a first-paint one: in principle it shows up in INP and memory on long-lived pages.
 
 ### How to enable it
 
-#### 🧪 Next — Third-party
+#### ✅ Next — 1st-party
 
-React re-renders component subtrees; fine-grained updates need a community signals package such as [`@preact/signals-react`](https://www.npmjs.com/package/@preact/signals-react) (hence 🧪; not used in this port). [`reactCompiler: true`](https://nextjs.org/docs/app/api-reference/config/next-config-js/reactCompiler) (stable since v16.0.0) is enabled in this repo and auto-memoizes, but it does not change the re-render model.
+The first-party [React Compiler](https://react.dev/learn/react-compiler), switched on with [`reactCompiler: true`](https://nextjs.org/docs/app/api-reference/config/next-config-js/reactCompiler) (stable since v16.0.0; enabled in this port). Next runs it through the Babel plugin, applied only to files with JSX or hooks; Next 16.4 also has an experimental native Rust build of the compiler, `experimental.turbopackRustReactCompiler: true`, used alongside `reactCompiler: true`.
 
 ```ts
 const nextConfig: NextConfig = {
@@ -1090,9 +1090,9 @@ const [isOpen, setIsOpen] = createSignal(false);
 
 *From this repo's `solid-books/src/components/mobile-book-sidebar.tsx` (`optimized` branch).*
 
-#### 🧪 TanStack Start (React) — Third-party
+#### ✅ TanStack Start (React) — 1st-party
 
-React. The [React Compiler](https://react.dev/learn/react-compiler) is not enabled in this port (`vite.config.ts` calls `viteReact()` with no `compiler` option and adds no `reactCompilerPreset` Babel plugin), so state updates re-render component subtrees. The compiler is opt-in and would not change the model. Fine-grained updates need a community signals library such as [`@preact/signals-react`](https://preactjs.com/guide/v10/signals/) (hence 🧪 third-party); nothing first-party provides them. No inline example (unsourced for this port).
+React; the first-party [React Compiler](https://react.dev/learn/react-compiler) is added as a Babel preset to the React Vite plugin. It is not enabled in this port (`vite.config.ts` calls `viteReact()` with no compiler preset).
 
 #### ✅ TanStack Start (Solid) — 1st-party
 
@@ -1102,9 +1102,9 @@ React. The [React Compiler](https://react.dev/learn/react-compiler) is not enabl
 
 Preact; [signals](https://preactjs.com/guide/v11/signals/) are an opt-in `@preact/signals` package from the Preact team, counted as first-party the way Vue's reactivity is for Nuxt; Pracht's own docs do not mention it. This port does not use them, and no inline example was sourced (unsourced).
 
-#### 🧪 Waku — Third-party
+#### ✅ Waku — 1st-party
 
-React; the [React Compiler](https://react.dev/learn/react-compiler) is enabled via a Babel preset (enabled on both `main` and `optimized` in this port) and does not change the re-render model. Fine-grained updates need a community signals library such as [`@preact/signals-react`](https://preactjs.com/guide/v10/signals/) (hence 🧪 third-party); nothing first-party provides them.
+React; the first-party [React Compiler](https://react.dev/learn/react-compiler) is enabled via a Babel preset (on both `main` and `optimized` in this port).
 
 ```ts
 plugins: [tailwindcss(), react(), babel({ presets: [reactCompilerPreset()] })],
@@ -1126,7 +1126,7 @@ export default class SidebarService extends Service {
 
 ### Gotchas
 
-- React Compiler reduces wasted work but components still re-render; the 🧪 reflects that signals for React come only from community packages.
+- The React Compiler is opt-in for every React framework here: nothing changes until you add it to the build.
 - This row says nothing about first paint; do not read it as a loading-speed feature.
 
 ## 10. Built-in bundle analysis
@@ -1441,11 +1441,11 @@ Labels for these six frameworks come from vendor documentation and the package r
 | Islands / partial hydration / lazy slices | ✅ 1st-party | 🧪 Experimental | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party |
 | Per-route render modes | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual | 🔧 Manual |
 | Art-directed / modern-format images (`<picture>`) | ✅ 1st-party | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual |
-| Fine-grained client reactivity | ✅ 1st-party | 🧪 Third-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party |
+| Fine-grained client reactivity | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party |
 | Built-in bundle analysis | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party |
 | Third-party script strategies | ✅ 1st-party | 🔧 Manual | ✅ 1st-party | 🔧 Manual | 🔧 Manual | 🔧 Manual |
 | Portable multi-host deployment | ✅ 1st-party | 🧪 Third-party | ✅ 1st-party | 🔧 Manual | ✅ 1st-party | 🔧 Manual |
-| **Score (max 14)** | **13** | **6** | **11** | **7** | **7** | **5** |
+| **Score (max 14)** | **13** | **7** | **11** | **7** | **7** | **5** |
 
 ## Astro
 
@@ -1483,7 +1483,7 @@ Unscored extras:
 - **Islands / partial hydration / lazy slices** — 🧪 Experimental: Experimental RSC (React 19+): `unstable_reactRouterRSC` from `@react-router/dev/vite` plus experimental `@vitejs/plugin-rsc`; `unstable_`-prefixed and still unstable in 8.5.2. No islands or partial-hydration primitive documented. `splitRouteModules` only splits client exports. ([react-server-components](https://reactrouter.com/how-to/react-server-components), [code-splitting](https://reactrouter.com/explanation/code-splitting))
 - **Per-route render modes** — ✅ 1st-party: `prerender` (stable config) takes a per-URL list, so listed paths are static while the rest are server-rendered (`ssr: true`) or served from the SPA fallback (`ssr: false`); `clientLoader` skips server data per route. `ssr` itself is global, with no per-route export; `ssr: "unstable_api-only"` is experimental (v8.5.0). ([rendering](https://reactrouter.com/start/framework/rendering), [pre-rendering](https://reactrouter.com/how-to/pre-rendering), [spa](https://reactrouter.com/how-to/spa))
 - **Art-directed / modern-format images (`<picture>`)** — 🔧 Manual: No first-party `<picture>` helper documented; hand-write the markup. ([styling](https://reactrouter.com/explanation/styling))
-- **Fine-grained client reactivity** — 🧪 Third-party: React-based; no signals primitive. Fine-grained updates need a community signals library such as [`@preact/signals-react`](https://preactjs.com/guide/v10/signals/) (hence 🧪 third-party); nothing first-party provides them. v8.4.0 split internal router contexts to reduce router re-renders only. ([changelog](https://reactrouter.com/changelog))
+- **Fine-grained client reactivity** — ✅ 1st-party: React-based; the first-party [React Compiler](https://react.dev/learn/react-compiler) is added as a Babel preset to the React Vite plugin (not enabled in this port). v8.4.0 also split internal router contexts to reduce router re-renders. ([react-compiler](https://react.dev/learn/react-compiler), [changelog](https://reactrouter.com/changelog))
 - **Built-in bundle analysis** — 🧪 Third-party: No first-party analyzer documented; the code-splitting page does not mention one; the third-party route is a community Vite/Rollup visualizer such as [rollup-plugin-visualizer](https://github.com/btd/rollup-plugin-visualizer), added by hand. No React Router page recommends one. ([code-splitting](https://reactrouter.com/explanation/code-splitting))
 - **Third-party script strategies** — 🔧 Manual: No first-party strategy documented; `<Scripts>` renders the app runtime and only spreads attributes (`crossOrigin`, `nonce`), with no `async`/`defer` strategy documented. ([Scripts](https://reactrouter.com/api/components/Scripts))
 - **Portable multi-host deployment** — 🧪 Third-party: React Router-maintained adapters: `@react-router/serve` and `@react-router/express` (Node), `@react-router/cloudflare`, and `@react-router/architect` (AWS); v8 removed the Cloudflare dev proxy in favor of `@cloudflare/vite-plugin`. Vercel (`@vercel/react-router` preset) and Netlify (`@netlify/vite-plugin-react-router`) are host-maintained, not React Router-owned, so two of the four hosts this repo targets rely on host packages. ([adapter](https://reactrouter.com/api/other-api/adapter), [deploying](https://reactrouter.com/start/framework/deploying), [react-router](https://vercel.com/docs/frameworks/frontend/react-router), [react-router](https://docs.netlify.com/build/frameworks/framework-setup-guides/react-router/), [react-router](https://developers.cloudflare.com/workers/framework-guides/web-apps/react-router/))
@@ -1600,15 +1600,15 @@ Completeness % = (critical-path levers + other features) / 24, rounded to a whol
 | 1 | Astro | 10 | 13 | 23 | 96% |
 | 2 | Nuxt | 10 | 12 | 22 | 92% |
 | 2 | Pracht | 10 | 12 | 22 | 92% |
+| 4 | Next | 9 | 11 | 20 | 83% |
 | 4 | Qwik City | 9 | 11 | 20 | 83% |
-| 5 | Next | 9 | 10 | 19 | 79% |
-| 5 | SvelteKit | 9 | 10 | 19 | 79% |
+| 6 | SvelteKit | 9 | 10 | 19 | 79% |
 | 7 | Angular (SSR) | 10 | 7 | 17 | 71% |
-| 8 | SolidStart | 5 | 9 | 14 | 58% |
-| 8 | TanStack Start (Solid) | 7 | 7 | 14 | 58% |
-| 8 | Waku | 6 | 8 | 14 | 58% |
-| 11 | TanStack Start (React) | 7 | 6 | 13 | 54% |
-| 12 | React Router | 6 | 6 | 12 | 50% |
+| 8 | Waku | 6 | 9 | 15 | 63% |
+| 9 | SolidStart | 5 | 9 | 14 | 58% |
+| 9 | TanStack Start (React) | 7 | 7 | 14 | 58% |
+| 9 | TanStack Start (Solid) | 7 | 7 | 14 | 58% |
+| 12 | React Router | 6 | 7 | 13 | 54% |
 | 13 | Marko | 4 | 7 | 11 | 46% |
 | 14 | Fresh | 2 | 5 | 7 | 29% |
 | 15 | Ember | 2 | 3 | 5 | 21% |
