@@ -1139,7 +1139,7 @@ A bundle analyzer shows which modules make up each JavaScript bundle so you can 
 
 #### ✅ Next — 1st-party
 
-The Turbopack bundle analyzer ([guide](https://nextjs.org/docs/app/guides/package-bundling)) shipped in v16.1 as `next experimental-analyze` and is `next analyze` as of v16.4.0 (the old name remains an alias). It opens the Turbopack module graph with per-route client/server filtering; `--output` saves a static report and `next analyze export` (v16.4.0+) streams the saved data. This port is pinned to 16.4.0-canary.8, where the command is still `next experimental-analyze` and `export` is not available. The same guide covers the `@next/bundle-analyzer` plugin for webpack builds.
+The Turbopack bundle analyzer ([guide](https://nextjs.org/docs/app/guides/package-bundling)) shipped in v16.1 as `next experimental-analyze` and is `next analyze` as of v16.4.0 (the old name remains an alias). It opens the Turbopack module graph with per-route client/server filtering; `--output` saves a static report and `next analyze export` (v16.4.0+) streams the saved data. This port runs 16.4.6 and uses `next analyze`. The same guide covers the `@next/bundle-analyzer` plugin for webpack builds.
 
 ```bash
 npx next analyze
