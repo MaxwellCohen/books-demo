@@ -195,9 +195,9 @@ The page can't paint until a separate stylesheet downloads. If the CSS is small 
 
 For large CSS, serve the file from your own origin and preload it instead.
 
-### 3. Cache the data so the HTML does not wait on the database
+### 3. Cache the data the HTML depends on
 
-If the server queries the database before sending the HTML, that query adds a full step, and no client-side change can hide it.
+If the server queries the database before sending the HTML, that query adds a full step, which no client-side change can remove.
 
 - **Next:** mark the query [`'use cache'`](https://nextjs.org/docs/app/api-reference/directives/use-cache) and give it a [`cacheLife`](https://nextjs.org/docs/app/api-reference/functions/cacheLife).
 - **Nuxt:** use `defineCachedEventHandler`, set `nitro.storage.cache` and add a `routeRules` cache rule ([Nitro cache docs](https://nitro.build/docs/cache)).
@@ -216,13 +216,13 @@ A Worker that renders on every request adds a step even when the data is cached.
 
 In the Cloudflare results, a cached HTML page is the difference between the 1.7–2.0s and 1.1–1.5s bands.
 
-### 5. Server-render the shell; do not let JavaScript gate first paint
+### 5. Render the page shell on the server
 
 If client-side JavaScript builds the first visible markup, FCP waits for the bundle to download, parse and run. Render the page shell on the server and stream slower parts in behind boundaries (Suspense in React, or the framework's equivalent). A static shell can paint as soon as the HTML arrives.
 
-### 6. Measure the critical path, not the score
+### 6. Measure the critical request chain
 
-To find an app's band and the reason for it:
+The Lighthouse score alone won't tell you which band an app is in or why. To find out:
 
 1. Open Lighthouse's **critical request chain**, or the DevTools Performance panel at the FCP mark.
 2. List every request that has to finish before FCP.
