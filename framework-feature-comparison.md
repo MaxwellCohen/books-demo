@@ -22,8 +22,8 @@ Six more frameworks (Astro, React Router, Qwik City, Angular, Marko, Fresh) are 
 | Font optimization | ✅ 1st-party | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party |
 | Image pipeline | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party |
 | Data/HTML caching | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual |
-| Route prefetching | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual |
-| **Score (max 10)** | **9** | **10** | **9** | **5** | **7** | **7** | **10** | **6** | **2** |
+| Route prefetching | ✅ 1st-party | 🧪 Experimental | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual |
+| **Score (max 10)** | **9** | **9** | **9** | **5** | **7** | **7** | **10** | **6** | **2** |
 
 ### How to read the labels
 
@@ -619,7 +619,7 @@ const nextConfig: NextConfig = {
 
 *Adapted from this repo's `next-books/next.config.ts` (other options omitted) and `features/book/components/book-pagination.tsx` (`href` expression simplified; other props omitted); `FastLink` is this repo's wrapper around `Link`.*
 
-#### ✅ Nuxt — 1st-party
+#### 🧪 Nuxt — Experimental
 
 Use [`<NuxtLink>`](https://nuxt.com/docs/4.x/api/components/nuxt-link) `prefetch-on="visibility" | "interaction"`, `_payload.json` payload prefetch, and [`experimental.prefetchPreloadTags`](https://nuxt.com/docs/4.x/guide/going-further/experimental-features) (experimental, off by default).
 
@@ -1593,13 +1593,13 @@ Completeness % = (critical-path levers + other features) / 24, rounded to a whol
 
 1. Score each cell: ✅ = 2, 🧪 = 1, 🔧 = 0.
 2. Sum each table's column to get the score row (max 10 for the critical-path levers, max 14 for the other features).
-3. Add the two scores for the total (max 24), then divide by 24 for the completeness percentage. For example, Nuxt: 10 + 12 = 22, and 22 / 24 rounds to 92%.
+3. Add the two scores for the total (max 24), then divide by 24 for the completeness percentage. For example, Pracht: 10 + 12 = 22, and 22 / 24 rounds to 92%.
 
 | Rank | Framework | Critical-path levers (max 10) | Other features (max 14) | Total (max 24) | Completeness |
 | --- | --- | --- | --- | --- | --- |
 | 1 | Astro | 10 | 13 | 23 | 96% |
-| 2 | Nuxt | 10 | 12 | 22 | 92% |
 | 2 | Pracht | 10 | 12 | 22 | 92% |
+| 3 | Nuxt | 9 | 12 | 21 | 88% |
 | 4 | Next | 9 | 11 | 20 | 83% |
 | 4 | Qwik City | 9 | 11 | 20 | 83% |
 | 6 | SvelteKit | 9 | 10 | 19 | 79% |
@@ -1642,7 +1642,7 @@ Versions below come from each port's `package.json` in the port repositories lin
 - Ember's 🔧 cells (CSS, scripts) and 🧪 third-party cells (fonts, images via the community `@responsive-image/ember`, analysis) rest on the absence of a first-party primitive: the Ember Vite guide covers build setup only; the guides' only CSS and asset material is a generic HTML/CSS/JavaScript primer and the tutorial's CSS-and-assets section (`app/styles/app.css`, `public/` for images and fonts); Embroider's [Analyzing Bundles](https://github.com/embroider-build/embroider/blob/main/docs/analyzing.md) page defers to Vite tooling. The older cli.emberjs.com asset-compilation page is deprecated and covers the classic pipeline, so it is not cited.
 - Cells where the project owner's label differs from what the linked docs show (kept as given): SolidStart data caching 🔧 (Nitro `routeRules` / `defineCachedHandler`, [nitro.build/docs/cache](https://nitro.build/docs/cache); Solid Router [`query`](https://docs.solidjs.com/reference/solid-router/data#query)); SolidStart per-route render modes ✅ (an app-level Nitro prerender list plus Nitro `routeRules`; Nitro is not a Solid-team package and there is no per-route SSR/SPA switch); Next and Pracht art direction 🔧 (stable first-party `getImageProps()` helpers exist; scored 🔧 because neither ships a `<picture>`-emitting component); Waku data caching ✅ ([`waku-cache`](https://waku.gg/guides/explicit-caching) is a separate, still-evolving package, and the migration guide says to add caching explicitly); Ember data caching 🔧 (WarpDrive ships a first-party client request cache, [docs](https://warp-drive.io/guides/configuration/advanced)). In the Data/HTML caching row, ✅ is given where vendor docs describe build-time prerender or static output plus response cache headers, even with no framework data cache (SvelteKit, TanStack Start, React Router, Qwik City, Angular; Marko on static output alone, see below). SolidStart (prerender, Nitro `routeRules`) meets that bar and is kept at 🔧 by the project owner; scored by the same bar it would gain 2 points. Fresh stays 🔧 because it documents only a hand-set `Cache-Control` header.
 - Nuxt lazy hydration is on by default and documented without a warning on the components page, but its config key is `experimental.lazyHydration` on the [Experimental Features](https://nuxt.com/docs/4.x/guide/going-further/experimental-features) page; the islands cell is 🧪 on that basis, as are experimental server components and `<NuxtIsland>`.
-- Nuxt bundle analysis 🧪: the `nuxt analyze` command is documented as experimental; the `build.analyze` config option carries no experimental label but, with the Vite builder, relies on the community `rollup-plugin-visualizer` being installed. If that flag were counted as a stable first-party path the cell would be ✅ and Nuxt's total 23 (96%, tied with Astro at rank 1).
+- Nuxt bundle analysis 🧪: the `nuxt analyze` command is documented as experimental; the `build.analyze` config option carries no experimental label but, with the Vite builder, relies on the community `rollup-plugin-visualizer` being installed. If that flag were counted as a stable first-party path the cell would be ✅ and Nuxt's total 22 (92%, tied with Pracht at rank 2).
 - `@sveltejs/enhanced-img` is 1.0.1 on npm and the svelte.dev images page carries no experimental label, but the package README (npm and GitHub main) still says "This package is experimental. It uses pre-1.0 versioning"; the SvelteKit image-pipeline and `<picture>` cells (✅) treat that README text as stale. Read literally, both cells would be 🧪 and SvelteKit's total would be 17 (71%).
 - SolidStart image pipeline and `<picture>` (✅): `@solidjs/image` is a Solid-team package (GitHub solidjs/solid-image, npm) but is absent from docs.solidjs.com; the labels rest on the package README.
 - Additional frameworks have `main` and `optimized` ports but are not in the Lighthouse runs yet; every label is from vendor docs under the same rubric, not from the ports. Qwik and Astro rows were judged against the rubric as noted in their bullets.
