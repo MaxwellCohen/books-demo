@@ -1,6 +1,6 @@
 # Framework capability comparison
 
-> **AI-generated note:** This document was drafted with AI assistance and checked against vendor documentation. It is a check of capability only: nothing here was measured or benchmarked. Capability is described as of the versions in [Versions checked](#versions-checked) for the nine main-table columns, and the **Version** line under each framework in [Additional frameworks](#additional-frameworks) for the six additional frameworks. Setup links point to vendor documentation and were link-checked on 2026-11-24. Claims flagged as uncertain are listed in [Lower-confidence claims](#lower-confidence-claims).
+> **AI-generated note:** This document was drafted with AI assistance and checked against vendor documentation. It is a check of capability only: nothing here was measured or benchmarked. Capability is described as of the versions in [Versions checked](#versions-checked) for the nine main-table columns, and the **Version** line under each framework in [Additional frameworks](#additional-frameworks) for the ten additional frameworks. Setup links point to vendor documentation and were link-checked on 2026-11-24. Claims flagged as uncertain are listed in [Lower-confidence claims](#lower-confidence-claims).
 
 ## How to use this guide
 
@@ -10,7 +10,7 @@ This guide compares what nine framework columns provide (eight frameworks; TanSt
 
 **Columns.** The TanStack Start column is split into the React and Solid ports. The Solid port runs `@tanstack/solid-start` 2.0.0-rc.8 on Solid 2 RC, while the linked TanStack guides are the `latest` (v1, Solid 1) docs; see [Lower-confidence claims](#lower-confidence-claims). The SolidStart column is not `@solidjs/start`: the port is a Solid 2 app, deliberately pinned to a release candidate (2.0.0-rc.6; Solid 2.0 has since shipped stable on 2026-11-17, npm `latest` 2.0.3), running in `@solidjs/vite-plugin` start mode with Nitro 3 (beta), which the Solid docs say is not SolidStart. Solid 2 and start mode are documented at docs.solidjs.com (`building-apps/*`, `routing/solid-router/*`, `guides/choose-a-rendering-mode`); the SolidStart v1/v2 and Solid Router v1 docs are archived at v1.solidjs.com. Released SolidStart v2 is stable on Solid 1, so the two sets of docs differ in places (for example link preloading and prerendering), and neither may describe this port exactly.
 
-Six more frameworks (Astro, React Router, Qwik City, Angular, Marko, Fresh) are scored from vendor docs in [Additional frameworks](#additional-frameworks); the [completeness ranking](#completeness-score-and-ranking) covers all 15. Ports of those six now exist, each with a `main` baseline and an `optimized` branch (repos and deploys are listed in the [README](./README.md)), but their labels still come from vendor docs, not from the ports.
+Six more frameworks (Astro, React Router, Qwik City, Angular, Marko, Fresh) are scored from vendor docs in [Additional frameworks](#additional-frameworks); the [completeness ranking](#completeness-score-and-ranking) covers all 19. Four more (Analog, Vike, RedwoodSDK, Remix 3) are scored the same way and have no Books port yet. Ports of the first six now exist, each with a `main` baseline and an `optimized` branch (repos and deploys are listed in the [README](./README.md)), but their labels still come from vendor docs, not from the ports.
 
 **How the sections work.** Sections 1 to 12 each follow the same shape: *what it is and why it matters*, then *how to enable it* per framework (with a short code block where one could be sourced), then *gotchas*. Every snippet carries a caption saying whether it comes from this repo's ports or from the linked vendor doc. `<port>-books/<path>` in a caption means that path in the port's own repository (linked in the [README](./README.md)), on the branch the caption names; the ports are separate repos, not tracked here. Where no snippet could be sourced, the entry is prose plus the doc link, and the item is listed under [Lower-confidence claims](#lower-confidence-claims).
 
@@ -22,8 +22,8 @@ Six more frameworks (Astro, React Router, Qwik City, Angular, Marko, Fresh) are 
 | Font optimization | ✅ 1st-party | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party |
 | Image pipeline | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party |
 | Data/HTML caching | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🧪 Third-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual |
-| Route prefetching | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual |
-| **Score (max 10)** | **9** | **10** | **9** | **6** | **7** | **7** | **10** | **6** | **2** |
+| Route prefetching | ✅ 1st-party | 🧪 Experimental | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual |
+| **Score (max 10)** | **9** | **9** | **9** | **6** | **7** | **7** | **10** | **6** | **2** |
 
 ### How to read the labels
 
@@ -623,7 +623,7 @@ const nextConfig: NextConfig = {
 
 *Adapted from this repo's `next-books/next.config.ts` (other options omitted) and `features/book/components/book-pagination.tsx` (`href` expression simplified; other props omitted); `FastLink` is this repo's wrapper around `Link`.*
 
-#### ✅ Nuxt — 1st-party
+#### 🧪 Nuxt — Experimental
 
 Use [`<NuxtLink>`](https://nuxt.com/docs/4.x/api/components/nuxt-link) `prefetch-on="visibility" | "interaction"`, `_payload.json` payload prefetch, and [`experimental.prefetchPreloadTags`](https://nuxt.com/docs/4.x/guide/going-further/experimental-features) (experimental, off by default).
 
@@ -1423,33 +1423,35 @@ Read the two tables together, and treat the [completeness score](#completeness-s
 
 ## Additional frameworks
 
-Labels for these six frameworks come from vendor documentation and the package registry (npm; JSR for Fresh), at the versions listed under each framework, using the same legend and scoring as above. Ports of all six now exist (`astro-books`, `react-router-books`, `qwik-books`, `angular-books`, `marko-books`, `fresh-books`; see the [README](./README.md) for repos and deploys), each with a `main` baseline and an `optimized` branch (cache + self-hosted fonts) deployed to Vercel, Netlify, and Cloudflare. The labels below were not derived from those ports.
+Labels for these ten frameworks come from vendor documentation and the package registry (npm; JSR for Fresh), at the versions listed under each framework, using the same legend and scoring as above. Ports of the first six now exist (`astro-books`, `react-router-books`, `qwik-books`, `angular-books`, `marko-books`, `fresh-books`; see the [README](./README.md) for repos and deploys), each with a `main` baseline and an `optimized` branch (cache + self-hosted fonts) deployed to Vercel, Netlify, and Cloudflare. The labels below were not derived from those ports.
 
-**Why these frameworks:** widely used alternatives with an SSR/SSG story. Not included: Gatsby, Eleventy, Remix v2 (superseded by React Router), Analog, RedwoodSDK, and SvelteKit-adjacent projects.
+Analog, Vike, RedwoodSDK and Remix 3 have no Books port yet. They have no repo, no deploys, and no benchmark or FCP data; only the labels, links and versions below exist for them.
+
+**Why these frameworks:** widely used alternatives with an SSR/SSG story. Analog is the Angular meta-framework, Vike is a Vite meta-framework with React, Vue and Solid renderers, RedwoodSDK is a React Server Components framework for Cloudflare Workers, and Remix 3 (npm `remix` 3.x) is a new framework with its own component runtime and no React, so it is scored separately from React Router. Not included: Gatsby, Eleventy, Remix v2 (superseded by React Router), HonoX (0.1.x; its README says it is in alpha and may break without a major release), and SvelteKit-adjacent projects.
 
 ## Critical-path levers (additional frameworks)
 
-| Item | Astro | React Router | Qwik City | Angular (SSR) | Marko | Fresh |
-| --- | --- | --- | --- | --- | --- | --- |
-| Production CSS inlining | ✅ 1st-party | 🔧 Manual | ✅ 1st-party | ✅ 1st-party | 🔧 Manual | 🔧 Manual |
-| Font optimization | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party |
-| Image pipeline | ✅ 1st-party | 🧪 Third-party | ✅ 1st-party | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party |
-| Data/HTML caching | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual | 🔧 Manual |
-| Route prefetching | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual | 🔧 Manual |
-| **Score (max 10)** | **10** | **6** | **9** | **9** | **2** | **2** |
+| Item | Astro | React Router | Qwik City | Angular (SSR) | Marko | Fresh | Analog | Vike | RedwoodSDK | Remix 3 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Production CSS inlining | ✅ 1st-party | 🔧 Manual | ✅ 1st-party | ✅ 1st-party | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | ✅ 1st-party |
+| Font optimization | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party |
+| Image pipeline | ✅ 1st-party | 🧪 Third-party | ✅ 1st-party | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party |
+| Data/HTML caching | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual | 🔧 Manual | ✅ 1st-party | ✅ 1st-party | 🔧 Manual | 🔧 Manual |
+| Route prefetching | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual | 🔧 Manual | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party |
+| **Score (max 10)** | **10** | **6** | **9** | **9** | **2** | **2** | **7** | **6** | **4** | **6** |
 
 ## Other performance features (additional frameworks)
 
-| Item | Astro | React Router | Qwik City | Angular (SSR) | Marko | Fresh |
-| --- | --- | --- | --- | --- | --- | --- |
-| Islands / partial hydration / lazy slices | ✅ 1st-party | 🧪 Experimental | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party |
-| Per-route render modes | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual | 🔧 Manual |
-| Art-directed / modern-format images (`<picture>`) | ✅ 1st-party | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual |
-| Fine-grained client reactivity | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party |
-| Built-in bundle analysis | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party |
-| Third-party script strategies | ✅ 1st-party | 🔧 Manual | ✅ 1st-party | 🔧 Manual | 🔧 Manual | 🔧 Manual |
-| Portable multi-host deployment | ✅ 1st-party | 🧪 Third-party | ✅ 1st-party | 🔧 Manual | ✅ 1st-party | 🔧 Manual |
-| **Score (max 14)** | **13** | **7** | **11** | **7** | **7** | **5** |
+| Item | Astro | React Router | Qwik City | Angular (SSR) | Marko | Fresh | Analog | Vike | RedwoodSDK | Remix 3 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Islands / partial hydration / lazy slices | ✅ 1st-party | 🧪 Experimental | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual | ✅ 1st-party | ✅ 1st-party |
+| Per-route render modes | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual | 🔧 Manual | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual |
+| Art-directed / modern-format images (`<picture>`) | ✅ 1st-party | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual |
+| Fine-grained client reactivity | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual |
+| Built-in bundle analysis | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🔧 Manual |
+| Third-party script strategies | ✅ 1st-party | 🔧 Manual | ✅ 1st-party | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual |
+| Portable multi-host deployment | ✅ 1st-party | 🧪 Third-party | ✅ 1st-party | 🔧 Manual | ✅ 1st-party | 🔧 Manual | ✅ 1st-party | 🧪 Third-party | 🔧 Manual | 🔧 Manual |
+| **Score (max 14)** | **13** | **7** | **11** | **7** | **7** | **5** | **9** | **6** | **7** | **2** |
 
 ## Astro
 
@@ -1587,6 +1589,99 @@ Unscored extras:
 - Streaming handler and `Server-Timing` middleware examples. ([common-patterns](https://usefresh.dev/docs/examples/common-patterns))
 - Vite-hashed assets; `asset()` one-year cache lifetime. ([static-files](https://usefresh.dev/docs/concepts/static-files))
 
+## Analog
+
+**Version:** `@analogjs/platform` 3.0.0 (npm `latest` on 2026-11-25; analogjs.org documents v3). No Books port yet.
+
+- **Production CSS inlining** — 🔧 Manual: No first-party CSS inlining documented. Analog builds with Vite and its `index.html` links `src/styles.css`; Angular CLI's `inlineCritical` is an `angular.json` build option and is not listed among the `analog()` options. Inline by hand. ([style-pipeline](https://analogjs.org/docs/guides/style-pipeline), [migrating](https://analogjs.org/docs/guides/migrating))
+- **Font optimization** — 🧪 Third-party: No first-party font handling documented; the style pipeline guide covers stylesheet preprocessing only. The third-party route is [Fontsource](https://fontsource.org) packages imported from the global stylesheet. ([style-pipeline](https://analogjs.org/docs/guides/style-pipeline))
+- **Image pipeline** — ✅ 1st-party: Angular's `NgOptimizedImage` from `@angular/common`, a required dependency of every Analog app: `ngSrc`, `priority`, automatic `srcset`, lazy loading, and loaders for Cloudflare, Cloudinary, ImageKit, Imgix and Netlify. It is an Angular-team package, and the Analog docs do not cover images. ([image-optimization](https://angular.dev/guide/image-optimization))
+- **Data/HTML caching** — ✅ 1st-party: `analog({ prerender: { routes } })` renders listed routes to static HTML at build time, `static: true` builds a server-less site, and prerendered server-side data is written as static files. Response headers are set with h3 `setResponseHeader` in middleware or API routes. No ISR or revalidate option documented. ([static-site-generation](https://analogjs.org/docs/features/server/static-site-generation), [middleware](https://analogjs.org/docs/features/routing/middleware))
+- **Route prefetching** — ✅ 1st-party: Angular Router preloading: pass `withPreloading(PreloadAllModules)` to `provideFileRouter(...)`, which accepts Angular router features, to preload lazy route chunks. The Analog docs show other router features there (`withComponentInputBinding`, `withNavigationErrorHandler`) and no preloading example. No link hover or viewport prefetch documented. ([routing](https://analogjs.org/docs/features/routing/overview), [PreloadAllModules](https://angular.dev/api/router/PreloadAllModules))
+- **Islands / partial hydration / lazy slices** — ✅ 1st-party: Angular incremental hydration: `@defer (hydrate on viewport | idle | interaction | immediate)` blocks, enabled with `provideClientHydration(withIncrementalHydration())` on Angular 21 and by default on Angular 22. Analog's streaming SSR page builds on it; streaming itself is experimental (`experimental.streaming`). ([streaming-ssr](https://analogjs.org/docs/features/server/streaming-ssr), [incremental-hydration](https://angular.dev/guide/incremental-hydration))
+- **Per-route render modes** — ✅ 1st-party: SSR is the default; `routeRules: { '/admin/**': { ssr: false } }` in the Nitro config renders matching routes on the client only, and `prerender.routes` lists the routes built as static HTML. ([server-side-rendering](https://analogjs.org/docs/features/server/server-side-rendering), [static-site-generation](https://analogjs.org/docs/features/server/static-site-generation))
+- **Art-directed / modern-format images (`<picture>`)** — 🔧 Manual: The `NgOptimizedImage` page says `<picture>` is not supported yet; hand-write the markup. ([image-optimization](https://angular.dev/guide/image-optimization))
+- **Fine-grained client reactivity** — ✅ 1st-party: Angular signals (`signal`, `computed`, `resource`); Analog's own `injectServerFn` returns an Angular `resource` that refetches when a signal it reads changes. Zoneless change detection is the default from Angular 21. ([server-functions](https://analogjs.org/docs/features/data-fetching/server-functions), [signals](https://angular.dev/guide/signals))
+- **Built-in bundle analysis** — 🧪 Third-party: No first-party analyzer documented; Analog builds with Vite, so the third-party route is a community visualizer such as [rollup-plugin-visualizer](https://github.com/btd/rollup-plugin-visualizer). ([deployment](https://analogjs.org/docs/features/deployment/overview))
+- **Third-party script strategies** — 🔧 Manual: No first-party script-loading primitive documented in the Analog docs. ([server-side-rendering](https://analogjs.org/docs/features/server/server-side-rendering))
+- **Portable multi-host deployment** — ✅ 1st-party: Nitro presets ship inside Analog's own `@analogjs/vite-plugin-nitro`. Node is the default output, Vercel and Netlify deploy "with no additional configuration", and Cloudflare Pages needs `BUILD_PRESET=cloudflare-pages`. ([deployment](https://analogjs.org/docs/features/deployment/overview), [providers](https://analogjs.org/docs/features/deployment/providers), [vite-plugin-nitro](https://analogjs.org/docs/packages/vite-plugin-nitro/overview))
+
+Unscored extras:
+
+- Experimental streaming SSR: `analog({ experimental: { streaming: true } })` plus `renderStream`; needs Angular 21 and Vite 6. ([streaming-ssr](https://analogjs.org/docs/features/server/streaming-ssr))
+- A server function read resolved during SSR is transferred to the client, so the browser does not refetch it on hydration. ([server-functions](https://analogjs.org/docs/features/data-fetching/server-functions))
+- Automatic `sitemap.xml` for prerendered pages, and prerendering of Markdown pages from a content directory. ([static-site-generation](https://analogjs.org/docs/features/server/static-site-generation))
+
+## Vike
+
+**Version:** `vike` 0.4.270 with `vike-react` 0.6.32, `vike-vue` 0.9.16 and `vike-solid` 0.8.8 (npm `latest` on 2026-11-25). Vike is pre-1.0. The labels assume one of the three UI extensions is installed. No Books port yet.
+
+- **Production CSS inlining** — 🔧 Manual: No first-party CSS inlining documented; Vike injects `<link rel="stylesheet">` tags for a page's CSS. `injectFilter()` only moves or drops injected tags. Inline by hand, for example with a Vite `?inline` import. ([preloading](https://vike.dev/preloading))
+- **Font optimization** — 🧪 Third-party: No first-party font module documented. Vike injects `<link rel="preload" as="font">` for font files a page imports, but it does not download, subset or self-host fonts; the third-party route is [Fontsource](https://fontsource.org). ([preloading](https://vike.dev/preloading))
+- **Image pipeline** — 🧪 Third-party: No image component or optimizer documented; the `+image` setting only sets the `og:image` preview. Use a community package such as `@unpic/react` or a host image CDN. ([image](https://vike.dev/image), [static-directory](https://vike.dev/static-directory))
+- **Data/HTML caching** — ✅ 1st-party: `prerender: true` renders pages to static HTML at build time, per page or for the whole app. `+headersResponse` sets response headers such as `Cache-Control` per page; it is marked beta. On Vercel, `vercel: { isr: { expiration: 30 } }` in a page's `+config.js` opts into ISR through `vite-plugin-vercel`. No data cache documented. ([pre-rendering](https://vike.dev/pre-rendering), [headersResponse](https://vike.dev/headersResponse), [vercel](https://vike.dev/vercel))
+- **Route prefetching** — ✅ 1st-party: `prefetchStaticAssets: 'hover' | 'viewport' | false`, default `'hover'`, per page, with a per-link `data-prefetch-static-assets` override and a programmatic `prefetch('/url')`. Only static assets are prefetched; page data is not. ([prefetchStaticAssets](https://vike.dev/prefetchStaticAssets), [prefetch](https://vike.dev/prefetch))
+- **Islands / partial hydration / lazy slices** — 🔧 Manual: No islands or partial hydration documented. `<ClientOnly>` renders a component in the browser only, which is client-only rendering. The React Server Components extension `vike-react-rsc` is listed as work in progress (npm 0.0.0) and is not credited. ([ClientOnly](https://vike.dev/ClientOnly), [extensions](https://vike.dev/extensions))
+- **Per-route render modes** — ✅ 1st-party: Per-page `ssr: false` (SPA) and `prerender: true | false` (SSG) in `+config.js`, inherited by every page under that directory; `stream` is per page too. ([ssr](https://vike.dev/ssr), [pre-rendering](https://vike.dev/pre-rendering), [stream](https://vike.dev/stream))
+- **Art-directed / modern-format images (`<picture>`)** — 🔧 Manual: No first-party `<picture>` helper documented; hand-write the markup. ([image](https://vike.dev/image))
+- **Fine-grained client reactivity** — ✅ 1st-party: The Vike-team UI extensions bring the UI framework's own reactivity: Solid signals with `vike-solid`, Vue refs with `vike-vue`, and the first-party [React Compiler](https://react.dev/learn/react-compiler) for `vike-react`, added to the React Vite plugin. ([vike-solid](https://vike.dev/vike-solid), [vike-vue](https://vike.dev/vike-vue), [vike-react](https://vike.dev/vike-react))
+- **Built-in bundle analysis** — 🧪 Third-party: No first-party analyzer documented; Vike is a Vite plugin, so the third-party route is a community visualizer such as [rollup-plugin-visualizer](https://github.com/btd/rollup-plugin-visualizer). ([settings](https://vike.dev/settings))
+- **Third-party script strategies** — 🔧 Manual: No first-party script-loading strategy documented; `+Head` and `+client.js` are where scripts are added by hand. ([head-tags](https://vike.dev/head-tags))
+- **Portable multi-host deployment** — 🧪 Third-party: `+server` gives a built-in server for Node, Bun and Deno self-hosting. Cloudflare uses Cloudflare's `@cloudflare/vite-plugin`, Netlify uses Netlify's `@netlify/vite-plugin`, and Vercel uses `vite-plugin-vercel`; none of the three is a `vike` package. ([self-host](https://vike.dev/self-host), [cloudflare](https://vike.dev/cloudflare), [vercel](https://vike.dev/vercel), [netlify](https://vike.dev/netlify))
+
+Unscored extras:
+
+- HTML streaming per page with `+stream` (`vike-react` uses `react-streaming`). ([stream](https://vike.dev/stream))
+- 103 Early Hints from `pageContext.httpResponse.earlyHints`. ([preloading](https://vike.dev/preloading))
+- `+precompress` writes `.br` and `.gz` files at build time. ([precompress](https://vike.dev/precompress))
+- `+csp` adds a per-request nonce; `csp: { sri: true }` adds Subresource Integrity hashes to injected tags. ([csp](https://vike.dev/csp))
+
+## RedwoodSDK
+
+**Version:** `rwsdk` 1.7.5 (npm `latest` on 2026-11-25). RedwoodSDK runs on Cloudflare Workers only. No Books port yet.
+
+- **Production CSS inlining** — 🔧 Manual: No first-party CSS inlining documented; the Document links a stylesheet imported with `?url` (`<link rel="stylesheet" href={styles} />`). Inline by hand. ([tailwind](https://docs.rwsdk.com/guides/frontend/tailwind), [documents](https://docs.rwsdk.com/guides/frontend/documents))
+- **Font optimization** — 🧪 Third-party: No first-party font handling documented; the docs show font files in `public/fonts` with a hand-written `@font-face`. The third-party route is [Fontsource](https://fontsource.org). ([public-assets](https://docs.rwsdk.com/guides/frontend/public-assets))
+- **Image pipeline** — 🧪 Third-party: No image component or optimizer documented; images are plain `<img>` tags served from `public/`. The third-party route is the host's [Cloudflare Images transformations](https://developers.cloudflare.com/images/transform-images/), wired by hand. ([public-assets](https://docs.rwsdk.com/guides/frontend/public-assets))
+- **Data/HTML caching** — 🔧 Manual: No prerender, ISR or cache API documented; set `Cache-Control` by hand on the response headers. The client-navigation guide says RSC payload requests are GETs so browsers and CDNs can cache them. ([routing](https://docs.rwsdk.com/core/routing), [client-side-nav](https://docs.rwsdk.com/guides/frontend/client-side-nav))
+- **Route prefetching** — ✅ 1st-party: With client-side navigation on, `<link rel="x-prefetch" href="/about" />` makes RedwoodSDK fetch that route in the background after each navigation and store the response in the browser Cache API. Needs the `onHydrated` callback from `initClientNavigation()`. No hover or viewport trigger documented. ([client-side-nav](https://docs.rwsdk.com/guides/frontend/client-side-nav))
+- **Islands / partial hydration / lazy slices** — ✅ 1st-party: React Server Components are the default; only components marked `"use client"` ship JavaScript and hydrate. ([react-server-components](https://docs.rwsdk.com/core/react-server-components))
+- **Per-route render modes** — ✅ 1st-party: `render(Document, routes, { ssr: false })` renders a group of routes on the client only, and `{ rscPayload: false }` serves a group as static HTML with no hydration. No build-time prerender documented. ([sdk-router](https://docs.rwsdk.com/reference/sdk-router))
+- **Art-directed / modern-format images (`<picture>`)** — 🔧 Manual: No first-party `<picture>` helper documented; hand-write the markup. ([public-assets](https://docs.rwsdk.com/guides/frontend/public-assets))
+- **Fine-grained client reactivity** — ✅ 1st-party: React-based; the RedwoodSDK guide adds the first-party [React Compiler](https://react.dev/learn/react-compiler) as a Babel plugin on `@vitejs/plugin-react`, placed before the Cloudflare and RedwoodSDK plugins. ([react-compiler](https://docs.rwsdk.com/guides/optimize/react-compiler))
+- **Built-in bundle analysis** — 🧪 Third-party: No first-party analyzer documented; RedwoodSDK is a Vite plugin, so the third-party route is a community visualizer such as [rollup-plugin-visualizer](https://github.com/btd/rollup-plugin-visualizer). ([hosting](https://docs.rwsdk.com/core/hosting))
+- **Third-party script strategies** — 🔧 Manual: No first-party script-loading strategy documented; scripts go in the Document by hand, and the security page covers only the CSP nonce they need. ([documents](https://docs.rwsdk.com/guides/frontend/documents), [security](https://docs.rwsdk.com/core/security))
+- **Portable multi-host deployment** — 🔧 Manual: Cloudflare Workers is the only documented host; no Node, Vercel or Netlify target is documented. ([hosting](https://docs.rwsdk.com/core/hosting))
+
+Unscored extras:
+
+- Streaming responses from React server functions. ([rsc-streams](https://docs.rwsdk.com/guides/rsc-streams))
+- Different Documents per route group, so one app can mix a static document, an SSR document and a client-only document. ([documents](https://docs.rwsdk.com/guides/frontend/documents))
+- Security headers and a per-request CSP nonce by default. ([security](https://docs.rwsdk.com/core/security))
+
+## Remix 3
+
+**Version:** `remix` 3.3.0 (npm `latest` on 2026-11-25; docs at docs.remix.run). Remix 3 is a new framework with its own component runtime (`remix/component`); it does not use React and is separate from React Router. No Books port yet.
+
+- **Production CSS inlining** — ✅ 1st-party: Styles written with the `css(...)` mixin from `remix/component` are collected during server rendering, deduplicated and emitted as `<style data-rmx-style>` tags in the document head. Global stylesheets added with `<link rel="stylesheet">` and `assets.getHref()` stay linked files. ([rendering-ui](https://docs.remix.run/rendering-ui/#styling-with-css), [component](https://docs.remix.run/api/component/))
+- **Font optimization** — 🧪 Third-party: No first-party font module documented. The asset server rewrites `url()` references in CSS, and a font preload is a hand-written `<link rel="preload" as="font">` using `assets.getHref()`; the third-party route is [Fontsource](https://fontsource.org). ([files-and-assets](https://docs.remix.run/files-and-assets/))
+- **Image pipeline** — 🧪 Third-party: The asset server has a first-party transform pipeline: `files.transforms` defined with `defineFileTransform`, requested as `assets.getHref(path, { transform: [["resize", "400"], "webp"] })`, with `createFsFileCache()` for results. The resize and format code is written by the app with the third-party Sharp library, and there is no image component or `srcset` helper. ([files-and-assets](https://docs.remix.run/files-and-assets/), [assets](https://docs.remix.run/api/assets/))
+- **Data/HTML caching** — 🔧 Manual: No prerender, ISR or data cache documented; actions return standard `Response` objects and set `Cache-Control` by hand. Fingerprinted assets are served with `Cache-Control: public, max-age=31536000, immutable`. ([request-handling](https://docs.remix.run/request-handling/), [assets](https://docs.remix.run/api/assets/))
+- **Route prefetching** — ✅ 1st-party: `<a href="/products/shirt" data-rmx-prefetch="intent">` or `"viewport"` loads the destination before navigation; `prefetch()` from `remix/component` does it from code. ([component](https://docs.remix.run/api/component/#prefetching), [interactivity](https://docs.remix.run/interactivity/))
+- **Islands / partial hydration / lazy slices** — ✅ 1st-party: Pages are server-rendered HTML; only components wrapped in `clientEntry(import.meta.url, Component)` hydrate. `<Frame src="..." fallback={...}>` streams a server-rendered region into the page and can load it lazily. ([interactivity](https://docs.remix.run/interactivity/#cliententry), [streaming-ui-with-frames](https://docs.remix.run/streaming-ui-with-frames/))
+- **Per-route render modes** — 🔧 Manual: Routes render on the server per request. `remix/spa` runs a whole app as a client-rendered app; no per-route prerender or SPA switch is documented. ([spa](https://docs.remix.run/api/spa/), [request-handling](https://docs.remix.run/request-handling/))
+- **Art-directed / modern-format images (`<picture>`)** — 🔧 Manual: No first-party `<picture>` helper documented; hand-write `<picture>` with transform URLs from `assets.getHref()`. ([files-and-assets](https://docs.remix.run/files-and-assets/))
+- **Fine-grained client reactivity** — 🔧 Manual: State is a plain variable and the component re-renders only when the app calls `handle.update()`; there are no signals and no dependency tracking. ([interactivity](https://docs.remix.run/interactivity/), [component](https://docs.remix.run/api/component/))
+- **Built-in bundle analysis** — 🔧 Manual: There are no bundles to analyze: the asset server compiles modules on request and the browser loads them one by one. `remix assets` lists every reachable file and `remix assets inspect <url-or-file>` explains one mapping; neither reports sizes. ([files-and-assets](https://docs.remix.run/files-and-assets/), [assets](https://docs.remix.run/api/assets/))
+- **Third-party script strategies** — 🔧 Manual: No first-party script-loading strategy documented; add `<script>` tags to the document by hand. ([rendering-ui](https://docs.remix.run/rendering-ui/))
+- **Portable multi-host deployment** — 🔧 Manual: The router is a Fetch handler. Node runs it through `remix/node-fetch-server`, and the docs show Bun, Deno and Cloudflare Worker entries; the static-file and compression middleware are Node-only. No Vercel or Netlify setup is documented, and the Production chapter covers the Node server. ([request-handling](https://docs.remix.run/request-handling/#alternate-runtimes-bun-deno-workers), [production](https://docs.remix.run/production/), [node-fetch-server](https://docs.remix.run/api/node-fetch-server/))
+
+Unscored extras:
+
+- No application build step: the asset server compiles TypeScript and JSX per module, and an import map keeps fingerprints per module so one changed file does not invalidate the files that import it. ([files-and-assets](https://docs.remix.run/files-and-assets/))
+- `<Frame>` regions stream as they resolve and can be reloaded without a full navigation. ([streaming-ui-with-frames](https://docs.remix.run/streaming-ui-with-frames/))
+- Module preloads for client entries are generated by the asset server. ([assets](https://docs.remix.run/api/assets/))
+
 ## Completeness score and ranking
 
 ### How to read the ranking
@@ -1597,25 +1692,29 @@ Completeness % = (critical-path levers + other features) / 24, rounded to a whol
 
 1. Score each cell: ✅ = 2, 🧪 = 1, 🔧 = 0.
 2. Sum each table's column to get the score row (max 10 for the critical-path levers, max 14 for the other features).
-3. Add the two scores for the total (max 24), then divide by 24 for the completeness percentage. For example, Nuxt: 10 + 12 = 22, and 22 / 24 rounds to 92%.
+3. Add the two scores for the total (max 24), then divide by 24 for the completeness percentage. For example, Pracht: 10 + 12 = 22, and 22 / 24 rounds to 92%.
 
 | Rank | Framework | Critical-path levers (max 10) | Other features (max 14) | Total (max 24) | Completeness |
 | --- | --- | --- | --- | --- | --- |
 | 1 | Astro | 10 | 13 | 23 | 96% |
-| 2 | Nuxt | 10 | 12 | 22 | 92% |
 | 2 | Pracht | 10 | 12 | 22 | 92% |
+| 3 | Nuxt | 9 | 12 | 21 | 88% |
 | 4 | Next | 9 | 11 | 20 | 83% |
 | 4 | Qwik City | 9 | 11 | 20 | 83% |
 | 6 | SvelteKit | 9 | 10 | 19 | 79% |
 | 7 | Angular (SSR) | 9 | 7 | 16 | 67% |
-| 8 | SolidStart | 6 | 9 | 15 | 63% |
-| 8 | Waku | 6 | 9 | 15 | 63% |
-| 10 | TanStack Start (React) | 7 | 7 | 14 | 58% |
-| 10 | TanStack Start (Solid) | 7 | 7 | 14 | 58% |
-| 12 | React Router | 6 | 7 | 13 | 54% |
-| 13 | Marko | 2 | 7 | 9 | 38% |
-| 14 | Fresh | 2 | 5 | 7 | 29% |
-| 15 | Ember | 2 | 3 | 5 | 21% |
+| 7 | Analog | 7 | 9 | 16 | 67% |
+| 9 | SolidStart | 6 | 9 | 15 | 63% |
+| 9 | Waku | 6 | 9 | 15 | 63% |
+| 11 | TanStack Start (React) | 7 | 7 | 14 | 58% |
+| 11 | TanStack Start (Solid) | 7 | 7 | 14 | 58% |
+| 13 | React Router | 6 | 7 | 13 | 54% |
+| 14 | Vike | 6 | 6 | 12 | 50% |
+| 15 | RedwoodSDK | 4 | 7 | 11 | 46% |
+| 16 | Marko | 2 | 7 | 9 | 38% |
+| 17 | Remix 3 | 6 | 2 | 8 | 33% |
+| 18 | Fresh | 2 | 5 | 7 | 29% |
+| 19 | Ember | 2 | 3 | 5 | 21% |
 
 Treat this as a rough capability count only, not a performance prediction.
 
@@ -1646,10 +1745,10 @@ Versions below come from each port's `package.json` in the port repositories lin
 - Ember's 🔧 cells (CSS, scripts) and 🧪 third-party cells (fonts, images via the community `@responsive-image/ember`, analysis) rest on the absence of a first-party primitive: the Ember Vite guide covers build setup only; the guides' only CSS and asset material is a generic HTML/CSS/JavaScript primer and the tutorial's CSS-and-assets section (`app/styles/app.css`, `public/` for images and fonts); Embroider's [Analyzing Bundles](https://github.com/embroider-build/embroider/blob/main/docs/analyzing.md) page defers to Vite tooling. The older cli.emberjs.com asset-compilation page is deprecated and covers the classic pipeline, so it is not cited.
 - Cells where the project owner's label differs from what the linked docs show (kept as given): SolidStart per-route render modes ✅ (an app-level Nitro prerender list plus Nitro `routeRules`; Nitro is not a Solid-team package and there is no per-route SSR/SPA switch); Next and Pracht art direction 🔧 (stable first-party `getImageProps()` helpers exist; scored 🔧 because neither ships a `<picture>`-emitting component); Waku data caching ✅ ([`waku-cache`](https://waku.gg/guides/explicit-caching) is a separate, still-evolving package, and the migration guide says to add caching explicitly); Ember data caching 🔧 (WarpDrive ships a first-party client request cache, [docs](https://warp-drive.io/guides/configuration/advanced)). In the Data/HTML caching row, ✅ is given where vendor docs describe build-time prerender or static output plus response cache headers, even with no framework data cache (SvelteKit, TanStack Start, React Router, Qwik City, Angular). SolidStart is 🧪 because its cache (Nitro `routeRules` and `defineCachedHandler`) comes from Nitro, which the Solid team does not maintain; counted as first-party, as the Solid docs present Nitro, it would gain 1 point. Marko and Fresh stay 🔧 because they document only a hand-set `Cache-Control` header (Marko's static adapter exports the whole app and does not cache a server-rendered one).
 - Nuxt lazy hydration is on by default and documented without a warning on the components page, but its config key is `experimental.lazyHydration` on the [Experimental Features](https://nuxt.com/docs/4.x/guide/going-further/experimental-features) page; the islands cell is 🧪 on that basis, as are experimental server components and `<NuxtIsland>`.
-- Nuxt bundle analysis 🧪: the `nuxt analyze` command is documented as experimental; the `build.analyze` config option carries no experimental label but, with the Vite builder, relies on the community `rollup-plugin-visualizer` being installed. If that flag were counted as a stable first-party path the cell would be ✅ and Nuxt's total 23 (96%, tied with Astro at rank 1).
+- Nuxt bundle analysis 🧪: the `nuxt analyze` command is documented as experimental; the `build.analyze` config option carries no experimental label but, with the Vite builder, relies on the community `rollup-plugin-visualizer` being installed. If that flag were counted as a stable first-party path the cell would be ✅ and Nuxt's total 22 (92%, tied with Pracht at rank 2).
 - `@sveltejs/enhanced-img` is 1.0.1 on npm and the svelte.dev images page carries no experimental label, but the package README (npm and GitHub main) still says "This package is experimental. It uses pre-1.0 versioning"; the SvelteKit image-pipeline and `<picture>` cells (✅) treat that README text as stale. Read literally, both cells would be 🧪 and SvelteKit's total would be 17 (71%).
 - SolidStart image pipeline and `<picture>` (✅): `@solidjs/image` is a Solid-team package (GitHub solidjs/solid-image, npm) but is absent from docs.solidjs.com; the labels rest on the package README.
-- Additional frameworks have `main` and `optimized` ports but are not in the Lighthouse runs yet; every label is from vendor docs under the same rubric, not from the ports. Qwik and Astro rows were judged against the rubric as noted in their bullets.
+- Astro, React Router, Qwik City, Angular, Marko and Fresh have `main` and `optimized` ports but are not in the Lighthouse runs yet; Analog, Vike, RedwoodSDK and Remix 3 have no port; every label is from vendor docs under the same rubric, not from the ports. Qwik and Astro rows were judged against the rubric as noted in their bullets.
 - Marko multi-host deployment (✅): the Cloudflare adapter is announced as official on markojs.com (October 2026 newsletter) but is not yet on the adapters page; the Vercel adapter is a first-party package documented only on npm and in the marko-js/run repo, not on markojs.com.
 - Marko data/HTML caching (🔧): if the app-wide `@marko/run-adapter-static` export were accepted as caching, the cell would be ✅ and Marko's first-table score would be 4 (total 11, 46%).
 - Qwik v2 (2.0.0-rc.5) differences are unverified; the Qwik labels use v1 docs. Qwik City 1.20.4 ships no Vercel Node/serverless adapter (`vercel-edge` only); a `cloudflare-workers` adapter is documented alongside `cloudflare-pages` and reuses the same adapter code.
@@ -1667,6 +1766,15 @@ Versions below come from each port's `package.json` in the port repositories lin
 - The linked Pracht docs are unversioned, so they describe the current release (1.0.1, which the port runs). Several ports pin pre-release builds: Nuxt (4.6.0 nightly on the optimized branches), Waku (1.0.0-rc.5, the newest release), TanStack Start Solid (2.0.0-rc.8), and the SolidStart pieces (Solid 2 RC, Nitro 3 beta). `@tanstack/react-start` itself is on stable 1.169.x, but both TanStack ports use a Nitro 3 beta. Vendor docs can change week to week.
 - SolidStart is not `@solidjs/start` here: Solid 2 (port pinned to 2.0.0-rc.6; 2.0.3 is npm latest) in `@solidjs/vite-plugin` start mode plus Nitro 3 beta. SolidStart v2 itself is stable on Solid 1 and its docs are at v1.solidjs.com. The doc links in this file are references, not a description of this port's build. Links to v1.solidjs.com describe released SolidStart v2 / Solid Router v1; links to docs.solidjs.com describe Solid 2 start mode.
 - No inline example (unsourced) because no repo file or linked doc page supplied one: CSS inlining for Waku and Ember; images for Waku and Ember; prefetching for Ember; islands for SolidStart and Ember; Next islands (prose only; the flag snippet is in section 4); Next and Ember per-route render modes; `<picture>` for SolidStart, TanStack Start (React and Solid), Pracht, Waku, and Ember; TanStack Start (React) and Pracht reactivity; bundle analysis for SvelteKit, SolidStart, TanStack Start, Waku, and Ember; third-party scripts for SvelteKit, SolidStart, Waku, and Ember; multi-host deployment for Ember. The TanStack Start (Solid) caching, prefetching, scripts, and deployment entries reuse the React snippet instead of repeating it, and its reactivity entry reuses the SolidStart one.
+- Analog, Vike, RedwoodSDK and Remix 3 have no Books port, so none of their labels was tried in a build. Every label is read from the vendor docs at the version on the framework's **Version** line.
+- Analog image pipeline, route prefetching, islands and reactivity (✅) rest on Angular-team packages (`NgOptimizedImage`, router preloading, incremental hydration, signals), following the rule that credits React Compiler to the React meta-frameworks. The Analog docs mention incremental hydration and signals but not `NgOptimizedImage` or `withPreloading`. If only Analog-team packages counted, the image and prefetching cells would be 🧪 and Analog's total 14 (58%).
+- Analog CSS inlining (🔧): the Analog docs list no critical-CSS option, and Angular CLI's `inlineCritical` belongs to the `angular.json` build that Analog replaces with Vite. Whether an Analog build can run that step was not confirmed.
+- Vike data/HTML caching (✅) rests on stable build-time pre-rendering; `+headersResponse` is marked beta and ISR is Vercel-only through `vite-plugin-vercel`. Vike multi-host (🧪) follows the TanStack Start and React Router cells: the Cloudflare, Netlify and Vercel plugins are not `vike` packages, although the Vike docs present them as the standard setup. Scored ✅, Vike's total would be 13 (54%).
+- Vike is 0.4.x and its React, Vue and Solid extensions are 0.x; the docs do not call the core experimental, so no cell is marked 🧪 for that.
+- RedwoodSDK per-route render modes (✅) covers client-only and static-HTML route groups; there is no build-time prerender. RedwoodSDK image pipeline (🧪) names Cloudflare Images, which the RedwoodSDK docs do not mention. RedwoodSDK data/HTML caching (🔧) is scored like Fresh: only hand-set headers are documented.
+- Remix 3 CSS inlining (✅) covers styles written with the `css(...)` mixin; a global stylesheet is still a linked file. If only whole-stylesheet inlining counted, the cell would be 🔧 and Remix 3's total 6 (25%).
+- Remix 3 image pipeline (🧪): the transform pipeline, URL syntax and file cache are first-party, but the resize code is written by the app with Sharp. Counting the pipeline alone would make the cell ✅ and the total 9 (38%).
+- Remix 3 reactivity, bundle analysis, render modes and multi-host (🔧) rest on the docs describing a different model (explicit `handle.update()`, unbundled modules, per-request rendering) or documenting no primitive. The Remix docs name Node, Bun, Deno and Cloudflare Workers; if that counted as partial host coverage the multi-host cell would be 🧪.
 - Several snippets are shortened (marked "omitted" or "abridged" in their captions) and some doc snippets are adapted from short quotes.
 
 ---
