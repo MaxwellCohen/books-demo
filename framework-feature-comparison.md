@@ -405,7 +405,7 @@ import { Image as UnpicImage } from "@unpic/solid";
 
 #### ✅ Pracht — 1st-party
 
-[`@pracht/image`](https://pracht.resynapse.dev/docs/images) ships loaders inside the package (`vercelLoader`, `netlifyLoader`, `cloudflareLoader`, `defaultLoader`, `passthroughLoader`; `createImageHandler` from `@pracht/image/node`), plus `placeholder="blur"`, `priority`, and build-time `?pracht` imports. `netlifyLoader` was added in `@pracht/image` 0.5.0; this port pins ^0.4.1, so it defines its own Netlify loader in `src/lib/images.ts`.
+[`@pracht/image`](https://pracht.resynapse.dev/docs/images) ships loaders inside the package (`vercelLoader`, `netlifyLoader`, `cloudflareLoader`, `defaultLoader`, `passthroughLoader`; `createImageHandler` from `@pracht/image/node`), plus `placeholder="blur"`, `priority`, and build-time `?pracht` imports. `netlifyLoader` was added in `@pracht/image` 0.5.0; this port uses it on Netlify (`@pracht/image` 0.6.1).
 
 ```ts
 plugins: [prachtImage(), pracht({ adapter, inlineCss: true })],
@@ -564,7 +564,7 @@ route('/', './routes/home.tsx', {
 
 #### ✅ Waku — 1st-party
 
-[`waku-cache`](https://waku.gg/guides/explicit-caching) is a separate, still-evolving package from the wakujs org; Waku has no core cache by design, and the [migration guide](https://waku.gg/guides/migrating-from-nextjs) says to add caching explicitly. The current `waku-cache` (0.0.2) requires Waku 1.0.0-rc.4 or later; on this port's pinned rc.0 only `waku-cache` 0.0.1 (peer `waku >=1.0.0-beta.3`) satisfies the peer range.
+[`waku-cache`](https://waku.gg/guides/explicit-caching) is a separate, still-evolving package from the wakujs org; Waku has no core cache by design, and the [migration guide](https://waku.gg/guides/migrating-from-nextjs) says to add caching explicitly. The current `waku-cache` (0.0.2) requires Waku 1.0.0-rc.4 or later; this port runs rc.5 with `waku-cache` 0.0.2.
 
 ```ts
 // ./src/lib/cache.ts
@@ -576,7 +576,7 @@ export const cache = createCache({
 });
 ```
 
-*Adapted from [the explicit-caching guide](https://waku.gg/guides/explicit-caching); the guide notes the memory store is process-local.* This port does not use it: on `optimized` it hand-writes `src/lib/catalog-cache.ts` plus `src/middleware/html-cache-control.ts` (`main` has neither).
+*Adapted from [the explicit-caching guide](https://waku.gg/guides/explicit-caching); the guide notes the memory store is process-local.* On `optimized` this port uses it in `src/lib/catalog-cache.ts`: a memory store in front of each host's shared store (Workers KV, Vercel Runtime Cache or Netlify Blobs) through `unstorageStore`. `src/middleware/html-cache-control.ts` sets the HTML `Cache-Control` (`main` has neither).
 
 #### 🔧 Ember — Manual
 
@@ -1133,7 +1133,7 @@ export default class SidebarService extends Service {
 
 ### What it is and why it matters
 
-A bundle analyzer shows which modules make up each JavaScript bundle so you can find large dependencies. Only the Next port has an analysis step configured (`pnpm analyze` runs `next build && next experimental-analyze`, the older name for the command the docs now call `next analyze`); none of the other ports do, so the rest of this section is capability only. Vite DevTools ships [DevTools for Rolldown](https://devtools.vite.dev/rolldown/#features) (`@vitejs/devtools-rolldown`), an ecosystem-level analyzer for production builds on Vite 8+. It is available to the ports on Vite 8 (not the Qwik and Fresh ports, which are on Vite 7) and is not counted in these labels.
+A bundle analyzer shows which modules make up each JavaScript bundle so you can find large dependencies. Only the Next port has an analysis step configured (`pnpm analyze` runs `next analyze`); none of the other ports do, so the rest of this section is capability only. Vite DevTools ships [DevTools for Rolldown](https://devtools.vite.dev/rolldown/#features) (`@vitejs/devtools-rolldown`), an ecosystem-level analyzer for production builds on Vite 8+. It is available to the ports on Vite 8 (not the Qwik and Fresh ports, which are on Vite 7) and is not counted in these labels.
 
 ### How to enable it
 
@@ -1621,13 +1621,13 @@ Versions below come from each port's `package.json` in the port repositories lin
 
 | Framework | Version checked | Notes |
 | --- | --- | --- |
-| Next | `next` 16.4.0-canary.8 (pinned pre-release; npm latest 16.4.6, which the docs describe) | Cache Components, `inlineCss`, `reactCompiler`, `partialPrefetching` enabled |
+| Next | `next` 16.4.6 (npm latest) | Cache Components, `inlineCss`, `reactCompiler`, `partialPrefetching`, `ensureStatic = 'shell'` |
 | Nuxt | `nuxt` aliased to `nuxt-nightly` 4.6.0-29813110.5c8fe35d (pre-release nightly; npm latest 4.6.4), compatibilityVersion 5 | `optimized` and `nuxt-books-optimized-max` branches (`main` is `nuxt` ^4.5.2); Vercel runtime cache; `routeRules`; Fontsource fonts; no `@nuxt/fonts` |
 | SvelteKit | `@sveltejs/kit` ^3.0.1 (lockfile 3.0.1; latest 3.4.0), Vite ^8.1.5 (lockfile 8.3.0) | `optimized` branch; Vercel ISR adapter; Unpic + IPX; Fontsource |
 | TanStack Start (React) | `@tanstack/react-start` 1.169.1 (pinned; latest 1.169.7 as of 2026-11-24), Vite ^8.0.0 | `?inline` CSS; Unpic; own catalog cache |
 | TanStack Start (Solid) | `@tanstack/solid-start` 2.0.0-rc.8 (rc tag now rc.12 as of 2026-11-24), Vite ^8.0.0 | `?inline` CSS; hand-written `@font-face`; own catalog cache |
-| Pracht | `@pracht/core` ^0.18.0 (latest 1.0.1 as of 2026-11-24), Vite ^8.3.2 | `inlineCss`, `@pracht/image`, ISG, prefetch; Fontsource fonts |
-| Waku | `waku` 1.0.0-rc.0 (latest rc.5) | `optimized` branch; no CSS inline or images |
+| Pracht | `@pracht/core` 1.0.1 (npm latest), `@pracht/image` 0.6.1, Vite ^8.3.2 | `inlineCss`, `@pracht/image`, ISG, prefetch; Fontsource fonts |
+| Waku | `waku` 1.0.0-rc.5 (latest; no stable 1.0 yet), `waku-cache` 0.0.2 | `optimized` branch; no CSS inline or images |
 | SolidStart | Not `@solidjs/start`: `solid-js` ^2.0.0-rc.6 (npm latest 2.0.3), `@solidjs/router` ^2.0.0-next.21, Nitro 3.0.260903-beta (npm latest 3.0.261103-rc) via `@solidjs/vite-plugin` ^3.0.0-next.39 (npm latest 3.0.1) | `optimized` branch: `?inline` CSS; Fontsource + woff2 preload; custom `imageSrcset` helper with Nitro host image config; `FastLink` preload helper; no cache configured |
 | Ember | `ember-source` ~7.2.0 (latest 7.4.1; the linked /release guides are v7.3), `vite-ember-ssr` ^0.4.1 (latest 0.7.0) | Embroider/Vite + `vite-ember-ssr`, not FastBoot |
 
@@ -1645,7 +1645,6 @@ Versions below come from each port's `package.json` in the port repositories lin
 - Nuxt bundle analysis 🧪: the `nuxt analyze` command is documented as experimental; the `build.analyze` config option carries no experimental label but, with the Vite builder, relies on the community `rollup-plugin-visualizer` being installed. If that flag were counted as a stable first-party path the cell would be ✅ and Nuxt's total 23 (96%, tied with Astro at rank 1).
 - `@sveltejs/enhanced-img` is 1.0.1 on npm and the svelte.dev images page carries no experimental label, but the package README (npm and GitHub main) still says "This package is experimental. It uses pre-1.0 versioning"; the SvelteKit image-pipeline and `<picture>` cells (✅) treat that README text as stale. Read literally, both cells would be 🧪 and SvelteKit's total would be 17 (71%).
 - SolidStart image pipeline and `<picture>` (✅): `@solidjs/image` is a Solid-team package (GitHub solidjs/solid-image, npm) but is absent from docs.solidjs.com; the labels rest on the package README.
-- Next was read against the 16.4.6 docs while the port pins 16.4.0-canary.8; `ensureStatic`, the unprefixed `next analyze`, and `next analyze export` (all v16.4.0) are not in the pinned build.
 - Additional frameworks have `main` and `optimized` ports but are not in the Lighthouse runs yet; every label is from vendor docs under the same rubric, not from the ports. Qwik and Astro rows were judged against the rubric as noted in their bullets.
 - Marko multi-host deployment (✅): the Cloudflare adapter is announced as official on markojs.com (October 2026 newsletter) but is not yet on the adapters page; the Vercel adapter is a first-party package documented only on npm and in the marko-js/run repo, not on markojs.com.
 - Marko data/HTML caching (✅) is weak: it rests solely on the app-wide `@marko/run-adapter-static` export (SSG, no revalidation); Marko Run documents no data cache, ISR or cache-header API. If static export alone is not accepted for this row the cell becomes 🔧 and Marko's first-table score drops from 4 to 2.
@@ -1661,7 +1660,7 @@ Versions below come from each port's `package.json` in the port repositories lin
 - Angular incremental-hydration and route-level render-mode stability (stable since v20) comes from the [Angular roadmap](https://angular.dev/roadmap), not from the guides.
 - Also flagged UNSOURCED inline and not affecting any label: Angular's default router preloading strategy (not stated on the fetched page), the behaviour of Astro's `security.csp` (unscored extra), and whether a Vite `?inline` CSS import works in Fresh.
 - Next `worker` strategy and Bun adapter status are taken from the linked docs as of this edit; Cloudflare/Netlify verified adapters are described there as in progress.
-- Pracht was checked on 0.18.0; it has since reached 1.0 (latest 1.0.1), and the linked Pracht docs are unversioned, so they describe the current release rather than the pinned one. Several ports pin pre-release builds: Next (16.4.0-canary.8), Nuxt (4.6.0 nightly on the optimized branches), Waku (1.0.0-rc.0), TanStack Start Solid (2.0.0-rc.8), and the SolidStart pieces (Solid 2 RC, Nitro 3 beta). `@tanstack/react-start` itself is on stable 1.169.x, but both TanStack ports use a Nitro 3 beta. Vendor docs can change week to week.
+- The linked Pracht docs are unversioned, so they describe the current release (1.0.1, which the port runs). Several ports pin pre-release builds: Nuxt (4.6.0 nightly on the optimized branches), Waku (1.0.0-rc.5, the newest release), TanStack Start Solid (2.0.0-rc.8), and the SolidStart pieces (Solid 2 RC, Nitro 3 beta). `@tanstack/react-start` itself is on stable 1.169.x, but both TanStack ports use a Nitro 3 beta. Vendor docs can change week to week.
 - SolidStart is not `@solidjs/start` here: Solid 2 (port pinned to 2.0.0-rc.6; 2.0.3 is npm latest) in `@solidjs/vite-plugin` start mode plus Nitro 3 beta. SolidStart v2 itself is stable on Solid 1 and its docs are at v1.solidjs.com. The doc links in this file are references, not a description of this port's build. Links to v1.solidjs.com describe released SolidStart v2 / Solid Router v1; links to docs.solidjs.com describe Solid 2 start mode.
 - No inline example (unsourced) because no repo file or linked doc page supplied one: CSS inlining for Waku and Ember; images for Waku and Ember; prefetching for Ember; islands for SolidStart and Ember; Next islands (prose only; the flag snippet is in section 4); Next and Ember per-route render modes; `<picture>` for SolidStart, TanStack Start (React and Solid), Pracht, Waku, and Ember; TanStack Start (React) and Pracht reactivity; bundle analysis for SvelteKit, SolidStart, TanStack Start, Waku, and Ember; third-party scripts for SvelteKit, SolidStart, Waku, and Ember; multi-host deployment for Ember. The TanStack Start (Solid) caching, prefetching, scripts, and deployment entries reuse the React snippet instead of repeating it, and its reactivity entry reuses the SolidStart one.
 - Several snippets are shortened (marked "omitted" or "abridged" in their captions) and some doc snippets are adapted from short quotes.

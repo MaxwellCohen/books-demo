@@ -1,6 +1,6 @@
 # Why FCP clusters into bands, and how to move an app to a faster one
 
-> The numbers on this page come from mobile Lighthouse screenshots in `docs/`, taken in four runs between 16 and 27 September 2026, plus the source code of each port. No new runs were made for this write-up. Because the values were read off screenshots, a few may differ slightly from the original spreadsheet. The write-up was drafted with AI help on 2026-11-08, and the setup links were checked against vendor docs the same day.
+> The numbers on this page come from mobile Lighthouse screenshots in `docs/`, taken in four runs between 16 and 27 September 2026, plus the source code of each port. No new runs were made for this write-up. Because the values were read off screenshots, a few may differ slightly from the original spreadsheet.
 
 ## Summary
 
