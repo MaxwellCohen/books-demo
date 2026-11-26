@@ -6,13 +6,13 @@
 
 This guide compares what nine framework columns provide (eight frameworks; TanStack Start is split into its React and Solid ports), from vendor docs, and then shows how to switch each feature on. Measured Lighthouse results live in [fcp-groupings.md](./fcp-groupings.md) and are not used here.
 
-**What is compared.** The first table covers five "critical-path levers": production CSS inlining, font optimization, the image pipeline, data/HTML caching, and route prefetching. They remove serialized requests from the critical path, so in principle they matter for first paint (not measured here). The [second table](#other-performance-features) covers seven other features: islands/lazy slices, per-route render modes, art-directed images, fine-grained reactivity, bundle analysis, third-party script strategies, and multi-host deployment.
+**What is compared.** The first table covers seven "critical-path levers": production CSS inlining, font optimization, the image pipeline, data/HTML caching, route prefetching, streaming SSR, and Early Hints / preload headers. They remove serialized requests or server wait from the critical path, so in principle they matter for first paint (not measured here). The [second table](#other-performance-features) covers eight other features: islands/lazy slices, per-route render modes, art-directed images, fine-grained reactivity, bundle analysis, third-party script strategies, multi-host deployment, and service worker / offline support.
 
 **Columns.** The TanStack Start column is split into the React and Solid ports. The Solid port runs `@tanstack/solid-start` 2.0.0-rc.8 on Solid 2 RC, while the linked TanStack guides are the `latest` (v1, Solid 1) docs; see [Lower-confidence claims](#lower-confidence-claims). The SolidStart column is not `@solidjs/start`: the port is a Solid 2 app, deliberately pinned to a release candidate (2.0.0-rc.6; Solid 2.0 has since shipped stable on 2026-11-17, npm `latest` 2.0.3), running in `@solidjs/vite-plugin` start mode with Nitro 3 (beta), which the Solid docs say is not SolidStart. Solid 2 and start mode are documented at docs.solidjs.com (`building-apps/*`, `routing/solid-router/*`, `guides/choose-a-rendering-mode`); the SolidStart v1/v2 and Solid Router v1 docs are archived at v1.solidjs.com. Released SolidStart v2 is stable on Solid 1, so the two sets of docs differ in places (for example link preloading and prerendering), and neither may describe this port exactly.
 
 Six more frameworks (Astro, React Router, Qwik City, Angular, Marko, Fresh) are scored from vendor docs in [Additional frameworks](#additional-frameworks); the [completeness ranking](#completeness-score-and-ranking) covers all 19. Four more (Analog, Vike, RedwoodSDK, Remix 3) are scored the same way and have no Books port yet. Ports of the first six now exist, each with a `main` baseline and an `optimized` branch (repos and deploys are listed in the [README](./README.md)), but their labels still come from vendor docs, not from the ports.
 
-**How the sections work.** Sections 1 to 12 each follow the same shape: *what it is and why it matters*, then *how to enable it* per framework (with a short code block where one could be sourced), then *gotchas*. Every snippet carries a caption saying whether it comes from this repo's ports or from the linked vendor doc. `<port>-books/<path>` in a caption means that path in the port's own repository (linked in the [README](./README.md)), on the branch the caption names; the ports are separate repos, not tracked here. Where no snippet could be sourced, the entry is prose plus the doc link, and the item is listed under [Lower-confidence claims](#lower-confidence-claims).
+**How the sections work.** Sections 1 to 15 each follow the same shape: *what it is and why it matters*, then *how to enable it* per framework (with a short code block where one could be sourced), then *gotchas*. Every snippet carries a caption saying whether it comes from this repo's ports or from the linked vendor doc. `<port>-books/<path>` in a caption means that path in the port's own repository (linked in the [README](./README.md)), on the branch the caption names; the ports are separate repos, not tracked here. Where no snippet could be sourced, the entry is prose plus the doc link, and the item is listed under [Lower-confidence claims](#lower-confidence-claims).
 
 ## Comparison table
 
@@ -23,7 +23,9 @@ Six more frameworks (Astro, React Router, Qwik City, Angular, Marko, Fresh) are 
 | Image pipeline | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party |
 | Data/HTML caching | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🧪 Third-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual |
 | Route prefetching | ✅ 1st-party | 🧪 Experimental | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual |
-| **Score (max 10)** | **9** | **9** | **9** | **6** | **7** | **7** | **10** | **6** | **2** |
+| Streaming SSR | ✅ 1st-party | 🧪 Experimental | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual |
+| Early Hints / preload headers | ✅ 1st-party | 🧪 Experimental | ✅ 1st-party | 🔧 Manual | 🧪 Experimental | 🧪 Experimental | ✅ 1st-party | 🔧 Manual | 🔧 Manual |
+| **Score (max 14)** | **13** | **11** | **13** | **8** | **10** | **10** | **14** | **8** | **2** |
 
 ### How to read the labels
 
@@ -50,9 +52,11 @@ The labels describe **framework capability**, not what a particular port chose. 
 | Image pipeline | ✅ | 2 |
 | Data/HTML caching | ✅ | 2 |
 | Route prefetching | ✅ | 2 |
-| **Total** | | **9** |
+| Streaming SSR | ✅ | 2 |
+| Early Hints / preload headers | ✅ | 2 |
+| **Total** | | **13** |
 
-That matches the **9** in the score row. The second table works the same way over seven rows (max 14), and the [ranking](#completeness-score-and-ranking) adds the two totals.
+That matches the **13** in the score row. The second table works the same way over eight rows (max 16), and the [ranking](#completeness-score-and-ranking) adds the two totals.
 
 ## 1. Production CSS inlining
 
@@ -709,9 +713,249 @@ Nothing to enable, and no first-party prefetch is documented: the [linking-betwe
 - TanStack's preloading is off until you set `defaultPreload`; Waku's is off until you pass a prop; SvelteKit needs the `data-sveltekit-preload-data` attribute somewhere (the starter template adds it).
 - Prefetching spends bandwidth on routes the user may never visit; `intent` (hover/focus) is the conservative setting.
 
+## 6. Streaming SSR
+
+### What it is and why it matters
+
+Streaming SSR sends the HTML in pieces. The server flushes the page shell (`<head>`, layout, loading placeholders) as soon as it is rendered, and sends each slow part when its data resolves. A buffered server waits for the slowest query before it sends the first byte, so one slow query delays the stylesheet, the fonts, and first paint. The row is ✅ when the framework's own server renderer can flush the shell before all data is ready, with a documented way to mark the deferred parts. In-order streaming counts the same as out-of-order streaming.
+
+### How to enable it
+
+#### ✅ Next — 1st-party
+
+Streaming is built into the App Router. Add a [`loading.tsx`](https://nextjs.org/docs/app/guides/streaming) file next to a page, or wrap a slow component in `<Suspense>`; the fallback is sent with the shell and the content follows in the same response.
+
+```tsx
+import { Suspense } from 'react'
+
+export default function Page() {
+  return (
+    <Suspense fallback={<p>Loading feed...</p>}>
+      <PostFeed />
+    </Suspense>
+  )
+}
+```
+
+*Adapted from [the Next streaming guide](https://nextjs.org/docs/app/guides/streaming) (imports of the page's own components omitted).*
+
+#### 🧪 Nuxt — Experimental
+
+Set [`experimental.ssrStreaming: true`](https://nuxt.com/docs/4.x/guide/going-further/experimental-features). The server sends the shell (`<head>`, styles, preload hints, entry scripts) first and then streams the body with Vue's `renderToWebStream`. `routeRules` can switch it off per route.
+
+```ts
+export default defineNuxtConfig({
+  experimental: {
+    ssrStreaming: true,
+  },
+  routeRules: {
+    '/no-stream/**': { streaming: false },
+  },
+})
+```
+
+*From [the Nuxt experimental features docs](https://nuxt.com/docs/4.x/guide/going-further/experimental-features).*
+
+#### ✅ SvelteKit — 1st-party
+
+Return a promise from a server `load` without awaiting it ([streaming with promises](https://svelte.dev/docs/kit/load)). The page renders with the awaited data, and each promise is streamed to the browser when it resolves; `{#await}` shows the placeholder.
+
+```js
+export async function load({ params }) {
+  return {
+    comments: loadComments(params.slug),
+    post: await loadPost(params.slug)
+  };
+}
+```
+
+*From [the SvelteKit `load` docs](https://svelte.dev/docs/kit/load) (comments omitted).*
+
+#### ✅ SolidStart — 1st-party
+
+With `ssr: true`, pages stream from the server ([choose a rendering mode](https://docs.solidjs.com/guides/choose-a-rendering-mode)): the shell is sent first, then one HTML fragment per `<Loading>` boundary as its data resolves ([performance guide](https://docs.solidjs.com/guides/performance#server-rendering-and-streaming)).
+
+```ts
+plugins: [solid({ start: true, ssr: true })],
+```
+
+```tsx
+<Loading fallback={<p>Loading product…</p>}>
+  <article>
+    <h1>{product().name}</h1>
+  </article>
+</Loading>
+```
+
+*Adapted from [the Solid docs](https://docs.solidjs.com/guides/choose-a-rendering-mode) (`vite.config.ts` line and a shortened `<Loading>` example).*
+
+#### ✅ TanStack Start (React) — 1st-party
+
+The default server entry uses `defaultStreamHandler` ([server entry point](https://tanstack.com/start/latest/docs/framework/react/guide/server-entry-point)), so [streaming SSR](https://tanstack.com/router/latest/docs/framework/react/guide/ssr) is on without a flag. Return a promise from a loader without awaiting it and render it with [`<Await>`](https://tanstack.com/router/latest/docs/framework/react/guide/deferred-data-loading).
+
+```tsx
+export const Route = createFileRoute('/posts/$postId')({
+  loader: async () => {
+    const slowDataPromise = fetchSlowData()
+    const fastData = await fetchFastData()
+    return { fastData, deferredSlowData: slowDataPromise }
+  },
+})
+// ...
+<Await promise={deferredSlowData} fallback={<div>Loading...</div>}>
+  {(data) => <div>{data}</div>}
+</Await>
+```
+
+*Adapted from [the TanStack Router deferred data loading guide](https://tanstack.com/router/latest/docs/framework/react/guide/deferred-data-loading) (comments omitted).*
+
+#### ✅ TanStack Start (Solid) — 1st-party
+
+The same setup applies: `defaultStreamHandler` from `@tanstack/solid-start/server` ([server entry point](https://tanstack.com/start/latest/docs/framework/solid/guide/server-entry-point)) and unawaited loader promises rendered with `<Await>` ([deferred data loading](https://tanstack.com/router/latest/docs/framework/solid/guide/deferred-data-loading)).
+
+#### ✅ Pracht — 1st-party
+
+Set the route option [`streaming: true`](https://pracht.resynapse.dev/docs/data-loading) and wrap slow loader values in `defer()`. It needs `render: "ssr"` and full hydration. Pages-router files use `export const STREAMING = true`.
+
+```ts
+route("/product/:id", () => import("./routes/product.tsx"), {
+  render: "ssr",
+  streaming: true,
+});
+```
+
+*From [the Pracht data loading docs](https://pracht.resynapse.dev/docs/data-loading) ("Streaming the document").*
+
+#### ✅ Waku — 1st-party
+
+Waku renders React Server Components to a stream, and a `<Suspense>` boundary around an async server component sends its fallback with the shell. There is no flag. The docs describe this only in passing: the [redirects and not-found guide](https://waku.gg/guides/redirects-and-not-found) covers what happens "inside a Suspense boundary after the shell has already been sent". No inline example (unsourced).
+
+#### 🔧 Ember — Manual
+
+No streaming render is documented. The [FastBoot user guide](https://ember-fastboot.com/docs/user-guide) and the community [`vite-ember-ssr`](https://github.com/evoactivity/vite-ember-ssr) layer this port uses both render the whole page and then send it. No inline example (unsourced).
+
+### Gotchas
+
+- The status code and headers are sent with the shell. A redirect or 404 found after that point cannot change them, so frameworks fall back to a client-side redirect or an error boundary.
+- A cached or prerendered page is already complete, so streaming changes nothing for it. Nuxt turns streaming off for routes with `cache`, `isr`, or `swr` rules.
+- A proxy or CDN that buffers the response removes the benefit. Check that your host passes chunks through.
+- Nuxt sends bots the buffered HTML by default. Pracht needs full hydration on a streamed route.
+
+## 7. Early Hints / preload headers
+
+### What it is and why it matters
+
+A `Link: </assets/app.css>; rel=preload; as=style` response header names a critical asset before the browser has parsed any HTML. A `103 Early Hints` response sends those `Link` headers while the server is still rendering, so the stylesheet, font, and script requests start during the server's think time. The row is ✅ when the framework adds preload `Link` headers for its own built assets, or sends the 103 itself, without the app listing assets by hand. Setting a `Link` header through a generic headers API is 🔧. A CDN such as Cloudflare can turn a cached `Link` header into a 103 ([Cloudflare Early Hints](https://developers.cloudflare.com/cache/advanced-configuration/early-hints/)), which is why preload headers count here even when the framework never writes a 103.
+
+### How to enable it
+
+#### ✅ Next — 1st-party
+
+Nothing to enable in the App Router. During prerendering React emits preload headers for fonts, scripts, and stylesheets, and Next adds them to the response. [`reactMaxHeadersLength`](https://nextjs.org/docs/app/api-reference/config/next-config-js/reactMaxHeadersLength) caps their total length (default 6000) for proxies that truncate long headers. Next does not document sending a 103 itself.
+
+```js
+module.exports = {
+  reactMaxHeadersLength: 1000,
+}
+```
+
+*From [the reactMaxHeadersLength docs](https://nextjs.org/docs/app/api-reference/config/next-config-js/reactMaxHeadersLength).*
+
+#### 🧪 Nuxt — Experimental
+
+Set [`experimental.writeEarlyHints: true`](https://nuxt.com/docs/4.x/guide/going-further/experimental-features). Nuxt then writes a 103 with the page's preload links. The docs limit it to the Node server.
+
+```ts
+export default defineNuxtConfig({
+  experimental: {
+    writeEarlyHints: true,
+  },
+})
+```
+
+*From [the Nuxt experimental features docs](https://nuxt.com/docs/4.x/guide/going-further/experimental-features).*
+
+#### ✅ SvelteKit — 1st-party
+
+Set [`output.linkHeaderPreload: true`](https://svelte.dev/docs/kit/@sveltejs-kit-vite#output) (SvelteKit 3.0+, default `false`). Pages that are not prerendered then preload their JS and CSS through the HTTP `Link` header instead of `<link>` elements. SvelteKit does not document sending a 103 itself.
+
+```ts
+sveltekit({
+  output: {
+    linkHeaderPreload: true,
+  },
+})
+```
+
+*Adapted from [the `output` config docs](https://svelte.dev/docs/kit/@sveltejs-kit-vite#output); the option sits next to `inlineStyleThreshold` in this repo's `svelte-books/vite.config.ts`, which does not set it.*
+
+#### 🔧 SolidStart — Manual
+
+No first-party preload headers or Early Hints are documented. [`httpHeader`](https://docs.solidjs.com/reference/solid-web/rendering-ssr/http-header) sets a response header during SSR, so you list each asset yourself.
+
+```ts
+httpHeader("Link", "</fonts/inter.woff2>; rel=preload; as=font", {
+  append: true,
+});
+```
+
+*From [the Solid `httpHeader` reference](https://docs.solidjs.com/reference/solid-web/rendering-ssr/http-header).*
+
+#### 🧪 TanStack Start (React) — Experimental
+
+[Early Hints](https://tanstack.com/start/latest/docs/framework/react/guide/early-hints) are marked experimental. Start collects route assets and route `head().links` and calls `onEarlyHints` in your server entry; your code sends the 103 with the runtime's own API, because "Start does not send Early Hints automatically". `responseLinkHeader` puts the same links in a `Link` header for a CDN to convert.
+
+```tsx
+// src/server.ts
+import handler, { createServerEntry } from '@tanstack/react-start/server-entry'
+
+export default createServerEntry({
+  fetch(request) {
+    return handler.fetch(request, {
+      onEarlyHints: ({ phase, links }) => {
+        if (phase !== 'static' || !links.length) return
+
+        // Send `links` with your runtime-specific 103 API.
+      },
+    })
+  },
+})
+```
+
+*From [the TanStack Start Early Hints guide](https://tanstack.com/start/latest/docs/framework/react/guide/early-hints).*
+
+#### 🧪 TanStack Start (Solid) — Experimental
+
+The same experimental [`onEarlyHints`](https://tanstack.com/start/latest/docs/framework/solid/guide/early-hints) hook and `responseLinkHeader` option, imported from `@tanstack/solid-start/server-entry`.
+
+#### ✅ Pracht — 1st-party
+
+Nothing to enable for the header: rendered pages, and prerendered SSG/ISG pages on the Node, Cloudflare, Vercel, and Netlify adapters, send a preload `Link` header for their stylesheets ([performance guide, Early hints](https://pracht.resynapse.dev/docs/performance)). On the [Node adapter](https://pracht.resynapse.dev/docs/adapters/node), `earlyHints: true` sends the 103 itself, including the page's scripts, before the loaders run.
+
+```ts
+nodeAdapter({ earlyHints: true });
+```
+
+*From [the Pracht performance guide](https://pracht.resynapse.dev/docs/performance).*
+
+#### 🔧 Waku — Manual
+
+No first-party preload headers or Early Hints are documented on [waku.gg](https://waku.gg/). Add a `Link` header at the host or CDN. No inline example (unsourced).
+
+#### 🔧 Ember — Manual
+
+No first-party preload headers or Early Hints are documented in the [FastBoot user guide](https://ember-fastboot.com/docs/user-guide) or in [`vite-ember-ssr`](https://github.com/evoactivity/vite-ember-ssr). Set a `Link` header in the Node server that wraps the renderer, or at the host. No inline example (unsourced).
+
+### Gotchas
+
+- Browsers act on a 103 only over HTTP/2 or HTTP/3, and some proxies mistake a 103 for the final response. Pracht keeps `earlyHints` off by default for that reason.
+- Nginx and Apache cap header size, and a long `Link` header can be truncated or rejected. SvelteKit keeps `linkHeaderPreload` off by default and Next caps the length for the same reason.
+- A static 103 can go out before a route decides to redirect. TanStack's `dynamic` phase waits for the loaders to avoid that.
+- Styles that are already inlined need no preload. Pracht sends no `Link` header for `inlineCss` styles.
+
 ## Other performance features
 
-The five levers are not the whole feature space. This table covers seven capabilities that matter for later interaction, for deployment, or for day-to-day performance work — several of which Next does not have, or only approximates.
+The seven levers are not the whole feature space. This table covers eight capabilities that matter for later interaction, for deployment, or for day-to-day performance work — several of which Next does not have, or only approximates.
 
 > **Scope note:** These labels describe framework capability, drawn from vendor docs (links checked on 2026-11-24). Nothing here was measured, so do not read FCP or INP numbers out of this table.
 
@@ -724,15 +968,16 @@ The five levers are not the whole feature space. This table covers seven capabil
 | Built-in bundle analysis | ✅ 1st-party | 🧪 Experimental | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party |
 | Third-party script strategies | ✅ 1st-party | ✅ 1st-party | 🧪 Third-party | 🔧 Manual | 🔧 Manual | 🔧 Manual | ✅ 1st-party | 🔧 Manual | 🔧 Manual |
 | Portable multi-host deployment | 🧪 Third-party | ✅ 1st-party | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual |
-| **Score (max 14)** | **11** | **12** | **10** | **9** | **7** | **7** | **12** | **9** | **3** |
+| Service worker / offline support | 🧪 Third-party | 🧪 Third-party | ✅ 1st-party | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual |
+| **Score (max 16)** | **12** | **13** | **12** | **9** | **7** | **7** | **12** | **9** | **3** |
 
 > **Scoring note:** Islands, partial hydration, and server islands/lazy slices are one row. Each framework gets its best label across those capabilities.
 
-**Summary:** Nuxt and Pracht tie for the widest set (12 of 14). Nuxt has per-route rules, documented lazy hydration and experimental islands (🧪), modern-format images, first-party reactivity, an experimental analyzer, an official script module, and Nitro presets. Pracht is the only framework where islands are a per-route hydration mode, and it also has server islands, ISG, an analyzer, a script component with loading strategies, and first-party adapters. TanStack Start has per-route SSR control, experimental deferred hydration (🧪), and (React only) experimental Server Components. SvelteKit sits in the middle: strong routing and deploy primitives, but no islands and no built-in script or analysis tooling. SolidStart has the same gaps in script and analysis tooling, but gets modern-format `<picture>` output from the Solid team's `@solidjs/image` and experimental server components in Solid 2 (🧪); its deploy targets rely on Nitro and host-maintained plugins (🧪). Waku gets per-route rendering, adapters, lazy slices, and the React Compiler. Ember has autotracking and only a community analyzer beyond that.
+**Summary:** Nuxt has the widest set (13 of 16); Next, SvelteKit, and Pracht follow with 12. Nuxt has per-route rules, documented lazy hydration and experimental islands (🧪), modern-format images, first-party reactivity, an experimental analyzer, an official script module, Nitro presets, and a community PWA module. Pracht is the only framework where islands are a per-route hydration mode, and it also has server islands, ISG, an analyzer, a script component with loading strategies, and first-party adapters. TanStack Start has per-route SSR control, experimental deferred hydration (🧪), and (React only) experimental Server Components. SvelteKit has strong routing and deploy primitives and the only first-party service worker build in this table, but no islands and no built-in script or analysis tooling. SolidStart has the same gaps in script and analysis tooling, but gets modern-format `<picture>` output from the Solid team's `@solidjs/image` and experimental server components in Solid 2 (🧪); its deploy targets rely on Nitro and host-maintained plugins (🧪). Waku gets per-route rendering, adapters, lazy slices, and the React Compiler. Ember has autotracking and only a community analyzer beyond that.
 
 The honest reading is that **Next's strength is server rendering, not breadth**. It has React Server Components, Cache Components/PPR, and cache tags, which these tables do not try to score. It scores 🔧 on art-direction ergonomics and 🧪 on deploy adapters.
 
-## 6. Islands, partial hydration, and lazy slices
+## 8. Islands, partial hydration, and lazy slices
 
 ### What it is and why it matters
 
@@ -835,7 +1080,7 @@ Nothing to enable: no first-party partial hydration is documented; SSR is app-wi
 - `<ClientOnly>` and `clientOnly` skip server rendering; they are not deferred hydration.
 - TanStack `<Hydrate>` and Pracht server islands are newer APIs: check the linked guides for current behavior.
 
-## 7. Per-route render modes
+## 9. Per-route render modes
 
 ### What it is and why it matters
 
@@ -961,7 +1206,7 @@ SSR is app-wide in this port (`emberSsr()` from community `vite-ember-ssr`; offi
 - TanStack `ssr: false` still runs on the client only; `'data-only'` is the middle option.
 - Static modes need an adapter that can serve prerendered output on the host you deploy to.
 
-## 8. Art-directed / modern-format images (`<picture>`)
+## 10. Art-directed / modern-format images (`<picture>`)
 
 ### What it is and why it matters
 
@@ -1044,7 +1289,7 @@ The [Vite guide](https://guides.emberjs.com/release/build-tools/vite) covers bui
 - Neither `<NuxtPicture>` nor `enhanced:img` does breakpoint art direction; they only negotiate formats and sizes.
 - Hand-written `<picture>` still needs `width`/`height` on the `<img>` (and on each `<source>` when the art-directed crops differ in aspect ratio) to avoid layout shift, plus `sizes` so the browser picks the right `srcset` candidate.
 
-## 9. Fine-grained client reactivity
+## 11. Fine-grained client reactivity
 
 ### What it is and why it matters
 
@@ -1133,7 +1378,7 @@ export default class SidebarService extends Service {
 - The React Compiler is opt-in for every React framework here: nothing changes until you add it to the build.
 - This row says nothing about first paint; do not read it as a loading-speed feature.
 
-## 10. Built-in bundle analysis
+## 12. Built-in bundle analysis
 
 ### What it is and why it matters
 
@@ -1201,7 +1446,7 @@ Embroider's [Analyzing Bundles](https://github.com/embroider-build/embroider/blo
 - Run the analyzer against a production build; development bundles are not representative.
 - Check each tool's own caveats: Astro's recipe, for instance, warns that a visualizer report may not match what the client downloads.
 
-## 11. Third-party script strategies
+## 13. Third-party script strategies
 
 ### What it is and why it matters
 
@@ -1287,7 +1532,7 @@ The [Vite guide](https://guides.emberjs.com/release/build-tools/vite) covers bui
 - Nuxt's `partytown` option needs `@nuxtjs/partytown` installed and configured separately.
 - Without a strategy API, ordering and deferral are your job: put `async`/`defer` and placement choices in the tag yourself.
 
-## 12. Portable multi-host deployment
+## 14. Portable multi-host deployment
 
 ### What it is and why it matters
 
@@ -1407,15 +1652,101 @@ Embroider/Vite ([guide](https://guides.emberjs.com/release/build-tools/vite)) pl
 - Presets and adapters change the build output, not your caching: this repo still hand-writes host-specific caches (see [section 4](#4-data-and-html-caching)).
 - Some host features are experimental or maintained by the host (Next on Cloudflare/Netlify; the Cloudflare and Netlify Vite plugins used by SolidStart and TanStack Start; Waku's Deno, Bun, and Lambda adapters).
 
+## 15. Service worker / offline support
+
+### What it is and why it matters
+
+A service worker is a script the browser keeps between visits. It can answer requests from a cache it filled earlier. It does nothing for a first visit, because it installs after the page has loaded. On repeat visits it can serve the built JS and CSS without a network round trip, and it can keep pages working offline. The row is ✅ when the framework builds and registers a service worker and gives it the list of built assets to precache.
+
+### How to enable it
+
+#### 🧪 Next — Third-party
+
+Next has no service worker build step. Its [PWA guide](https://nextjs.org/docs/app/guides/progressive-web-apps) hand-writes `public/sw.js` for push notifications and names the community [Serwist](https://serwist.pages.dev/docs/next) package for offline caching. `@serwist/next` wraps the Next config, compiles your worker, and injects the precache list. Next's own experimental `useOffline` hook retries failed navigations once the network returns; it is not a service worker.
+
+```js
+import withSerwistInit from "@serwist/next";
+
+const withSerwist = withSerwistInit({
+  swSrc: "app/sw.ts",
+  swDest: "public/sw.js",
+});
+
+export default withSerwist({
+  // Your Next.js config
+});
+```
+
+*Adapted from [the Serwist getting-started guide](https://serwist.pages.dev/docs/next/getting-started) (revision and offline-fallback entries omitted).*
+
+#### 🧪 Nuxt — Third-party
+
+Add the community [`@vite-pwa/nuxt`](https://vite-pwa-org.netlify.app/frameworks/nuxt) module (listed in the [Nuxt modules directory](https://nuxt.com/modules/vite-pwa-nuxt)). It generates the service worker and the precache manifest with Workbox and registers it.
+
+```ts
+export default defineNuxtConfig({
+  modules: ['@vite-pwa/nuxt'],
+  pwa: {
+    /* PWA options */
+  },
+})
+```
+
+*From [the Vite PWA Nuxt docs](https://vite-pwa-org.netlify.app/frameworks/nuxt).*
+
+#### ✅ SvelteKit — 1st-party
+
+Create `src/service-worker.js` (or `src/service-worker/index.ts`). SvelteKit bundles it and registers it automatically, and the [`$service-worker`](https://svelte.dev/docs/kit/service-workers) module gives it the built files, the static files, and a version string.
+
+```js
+import { build, files, version } from '$service-worker';
+
+const CACHE = `cache-${version}`;
+const ASSETS = [...build, ...files];
+```
+
+*Adapted from [the SvelteKit service workers docs](https://svelte.dev/docs/kit/service-workers) (the `install`, `activate`, and `fetch` handlers that use these are omitted).*
+
+#### 🔧 SolidStart — Manual
+
+No service worker support is documented. Put a hand-written `sw.js` in `public/` ([styling and assets](https://docs.solidjs.com/building-apps/styling-and-assets)) and register it yourself; the worker has no list of built assets unless you generate one. No inline example (unsourced).
+
+#### 🔧 TanStack Start (React) — Manual
+
+No service worker or offline guide exists in the [TanStack Start docs](https://tanstack.com/start/latest/docs/framework/react/overview). Hand-write the worker and register it from the root route. No inline example (unsourced).
+
+#### 🔧 TanStack Start (Solid) — Manual
+
+The same: nothing in the [Solid variant's docs](https://tanstack.com/start/latest/docs/framework/solid/overview). No inline example (unsourced).
+
+#### 🔧 Pracht — Manual
+
+No service worker support is documented in the [Pracht docs](https://pracht.resynapse.dev/docs/performance). Hand-write the worker, serve it from `public/`, and register it from the shell. No inline example (unsourced).
+
+#### 🔧 Waku — Manual
+
+No service worker support is documented. Put a hand-written worker in the [`public` folder](https://waku.gg/#static-assets) and register it from a client component. No inline example (unsourced).
+
+#### 🔧 Ember — Manual
+
+No first-party service worker is documented in the [Ember guides](https://guides.emberjs.com/release/). The community [`ember-service-worker`](https://github.com/DockYard/ember-service-worker) addon was last published in 2020 (9.0.1) and plugs into the classic Ember CLI build, which this Vite port does not use. No inline example (unsourced).
+
+### Gotchas
+
+- A service worker has no effect on a first visit, and a cache-first worker can keep serving an old build. Version the cache name (SvelteKit's `version`) and delete old caches on `activate`.
+- Precaching every built file downloads routes the visitor may never open.
+- The generic `vite-plugin-pwa` works in any Vite build but is built around a static `index.html`. An SSR app still has to wire the navigation fallback by hand, so it is credited only where a framework-specific package exists (`@vite-pwa/nuxt`, `@vite-pwa/astro`).
+- Service workers need HTTPS (or `localhost`), and most integrations disable them in dev.
+
 ## Other performance features not scored
 
 No scores; capabilities not in either table.
 
 - **Next** — [`next/dynamic`](https://nextjs.org/docs/app/guides/lazy-loading) lazy loading; [`optimizePackageImports`](https://nextjs.org/docs/app/guides/package-bundling).
-- **Nuxt** — `ssrStreaming`, `crossOriginPrefetch`, `payloadExtraction` ([experimental features](https://nuxt.com/docs/4.x/guide/going-further/experimental-features)).
-- **SvelteKit** — [streaming `load`](https://svelte.dev/docs/kit/load); `linkHeaderPreload` / `bundleStrategy` ([`output` config](https://svelte.dev/docs/kit/@sveltejs-kit-vite#output)).
-- **SolidStart** — streaming SSR with `deferStream` ([performance guide](https://docs.solidjs.com/guides/performance#server-rendering-and-streaming); option listed in the [`createMemo` reference](https://docs.solidjs.com/reference/solid-js/reactivity/create-memo)).
-- **TanStack Start** — experimental [Early Hints](https://tanstack.com/start/latest/docs/framework/react/guide/early-hints); experimental [`transformAssets`](https://tanstack.com/start/latest/docs/framework/react/guide/cdn-asset-urls) for CDN asset URLs.
+- **Nuxt** — `crossOriginPrefetch`, `payloadExtraction` ([experimental features](https://nuxt.com/docs/4.x/guide/going-further/experimental-features)).
+- **SvelteKit** — `bundleStrategy` ([`output` config](https://svelte.dev/docs/kit/@sveltejs-kit-vite#output)).
+- **SolidStart** — `deferStream`, which holds the stream until a given async value resolves ([performance guide](https://docs.solidjs.com/guides/performance#server-rendering-and-streaming); option listed in the [`createMemo` reference](https://docs.solidjs.com/reference/solid-js/reactivity/create-memo)).
+- **TanStack Start** — experimental [`transformAssets`](https://tanstack.com/start/latest/docs/framework/react/guide/cdn-asset-urls) for CDN asset URLs.
 - **Pracht** — see the [performance guide](https://pracht.resynapse.dev/docs/performance).
 - **Waku** — instant navigation ([v1 RC post](https://waku.gg/blog/waku-v1-rc)).
 
@@ -1438,7 +1769,9 @@ Analog, Vike, RedwoodSDK and Remix 3 have no Books port yet. They have no repo, 
 | Image pipeline | ✅ 1st-party | 🧪 Third-party | ✅ 1st-party | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party | ✅ 1st-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party |
 | Data/HTML caching | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual | 🔧 Manual | ✅ 1st-party | ✅ 1st-party | 🔧 Manual | 🔧 Manual |
 | Route prefetching | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual | 🔧 Manual | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party |
-| **Score (max 10)** | **10** | **6** | **9** | **9** | **2** | **2** | **7** | **6** | **4** | **6** |
+| Streaming SSR | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party | 🔧 Manual | ✅ 1st-party | 🔧 Manual | 🧪 Experimental | ✅ 1st-party | ✅ 1st-party | ✅ 1st-party |
+| Early Hints / preload headers | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | ✅ 1st-party | 🔧 Manual | 🔧 Manual |
+| **Score (max 14)** | **12** | **8** | **11** | **9** | **4** | **2** | **8** | **10** | **6** | **8** |
 
 ## Other performance features (additional frameworks)
 
@@ -1451,7 +1784,8 @@ Analog, Vike, RedwoodSDK and Remix 3 have no Books port yet. They have no repo, 
 | Built-in bundle analysis | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🧪 Third-party | 🔧 Manual |
 | Third-party script strategies | ✅ 1st-party | 🔧 Manual | ✅ 1st-party | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual |
 | Portable multi-host deployment | ✅ 1st-party | 🧪 Third-party | ✅ 1st-party | 🔧 Manual | ✅ 1st-party | 🔧 Manual | ✅ 1st-party | 🧪 Third-party | 🔧 Manual | 🔧 Manual |
-| **Score (max 14)** | **13** | **7** | **11** | **7** | **7** | **5** | **9** | **6** | **7** | **2** |
+| Service worker / offline support | 🧪 Third-party | 🔧 Manual | 🧪 Experimental | ✅ 1st-party | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual | 🔧 Manual |
+| **Score (max 16)** | **14** | **7** | **12** | **9** | **7** | **5** | **9** | **6** | **7** | **2** |
 
 ## Astro
 
@@ -1462,6 +1796,8 @@ Analog, Vike, RedwoodSDK and Remix 3 have no Books port yet. They have no repo, 
 - **Image pipeline** — ✅ 1st-party: `<Image />` from `astro:assets` optimizes local and authorized remote images; Sharp is the default service; responsive `layout`/`srcset` since astro@5.10.0; `public/` images are not optimized. Cloudflare, Vercel, and Netlify adapters have host image services. ([images](https://docs.astro.build/en/guides/images/), [cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/), [vercel](https://docs.astro.build/en/guides/integrations-guide/vercel/), [netlify](https://docs.astro.build/en/guides/integrations-guide/netlify/))
 - **Data/HTML caching** — ✅ 1st-party: Route caching for on-demand pages (astro@7.0.0+): top-level `cache: { provider }` with `memoryCache()`, `Astro.cache.set({ maxAge, swr, tags })`, `routeRules`, `cache.invalidate()`. Host providers (`cacheNetlify()`, `cacheVercel()`, `cacheCloudflare()`) are experimental and manually enabled. Also Vercel `isr: true` and Netlify `cacheOnDemandPages`. ([caching](https://docs.astro.build/en/guides/caching/), [astro-7](https://astro.build/blog/astro-7/), [vercel](https://docs.astro.build/en/guides/integrations-guide/vercel/), [netlify](https://docs.astro.build/en/guides/integrations-guide/netlify/))
 - **Route prefetching** — ✅ 1st-party: `prefetch: true` adds the script; links opt in via `data-astro-prefetch` or `prefetch.prefetchAll: true`. Strategies `hover` (default), `tap`, `viewport`, `load`; falls back to `tap` on data saver. `<ClientRouter />` pages prefetch by default. `eagerness` and Speculation Rules need experimental `clientPrerender`. ([prefetch](https://docs.astro.build/en/guides/prefetch/))
+- **Streaming SSR** — ✅ 1st-party: On-demand pages use HTML streaming: the document is sent in chunks, in order, as each component renders, so `<head>` and the top of the page go out before a slow `await` further down finishes. Nothing to enable. Move slow fetches into child components so they do not block the parts above them; `server:defer` server islands cover content that should arrive out of order. ([on-demand-rendering](https://docs.astro.build/en/guides/on-demand-rendering/#html-streaming))
+- **Early Hints / preload headers** — 🔧 Manual: No first-party preload `Link` headers or 103 Early Hints documented; the configuration reference has no option for either. Set a `Link` header by hand with `Astro.response.headers` or at the host. ([configuration-reference](https://docs.astro.build/en/reference/configuration-reference/), [on-demand-rendering](https://docs.astro.build/en/guides/on-demand-rendering/))
 - **Islands / partial hydration / lazy slices** — ✅ 1st-party: Zero client JS by default; `client:load`, `client:idle`, `client:visible`, `client:media`, `client:only`. `server:defer` server islands need an adapter; props travel in an encrypted query string. Server islands were experimental in astro@4.12 (`experimental.serverIslands`) and the flag was removed in astro@5.0, where the feature is available without it; the guide carries no experimental label. ([islands](https://docs.astro.build/en/concepts/islands/), [framework-components](https://docs.astro.build/en/guides/framework-components/), [server-islands](https://docs.astro.build/en/guides/server-islands/), [upgrade-to/v5](https://docs.astro.build/en/guides/upgrade-to/v5/), [astro-4120](https://astro.build/blog/astro-4120/))
 - **Per-route render modes** — ✅ 1st-party: Default static; `export const prerender = false` per page/endpoint for on-demand rendering; with `output: 'server'`, `prerender = true` opts back in. On-demand pages need an adapter. ([on-demand-rendering](https://docs.astro.build/en/guides/on-demand-rendering/))
 - **Art-directed / modern-format images (`<picture>`)** — ✅ 1st-party: `<Picture />` (astro@3.3.0+) emits `<picture>` with `formats` (default `webp`) plus a fallback `<img>`. Breakpoint art direction is not in the component docs; the official recipe uses `getImage()` and a hand-written `<picture>`/`<source media>`. ([astro-assets](https://docs.astro.build/en/reference/modules/astro-assets/), [build-custom-img-component](https://docs.astro.build/en/recipes/build-custom-img-component/))
@@ -1469,6 +1805,7 @@ Analog, Vike, RedwoodSDK and Remix 3 have no Books port yet. They have no repo, 
 - **Built-in bundle analysis** — 🧪 Third-party: No first-party analyzer documented; the official recipe adds `rollup-plugin-visualizer`, with a caveat that the report may not match what the client downloads. ([analyze-bundle-size](https://docs.astro.build/en/recipes/analyze-bundle-size/))
 - **Third-party script strategies** — ✅ 1st-party: Official `@astrojs/partytown` integration: `astro add partytown`, then `type="text/partytown"` on scripts. ([partytown](https://docs.astro.build/en/guides/integrations-guide/partytown/))
 - **Portable multi-host deployment** — ✅ 1st-party: Official adapters for Node (standalone/middleware), Vercel, Netlify, and Cloudflare; the on-demand rendering page names all four as official, and `astro add <adapter>` installs them. ([on-demand-rendering](https://docs.astro.build/en/guides/on-demand-rendering/), [deploy](https://docs.astro.build/en/guides/deploy/), [node](https://docs.astro.build/en/guides/integrations-guide/node/), [vercel](https://docs.astro.build/en/guides/integrations-guide/vercel/), [netlify](https://docs.astro.build/en/guides/integrations-guide/netlify/), [cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/))
+- **Service worker / offline support** — 🧪 Third-party: No first-party service worker documented. The community `@vite-pwa/astro` integration (2.0.4) generates the worker and precache manifest with Workbox and registers it; the Astro docs do not mention it. ([vite-pwa astro](https://vite-pwa-org.netlify.app/frameworks/astro))
 
 Unscored extras:
 
@@ -1486,6 +1823,8 @@ Unscored extras:
 - **Image pipeline** — 🧪 Third-party: No first-party image component or optimizer documented (only a `?url` asset import is shown); use a community package such as `@unpic/react` or a host image CDN by hand. ([styling](https://reactrouter.com/explanation/styling))
 - **Data/HTML caching** — ✅ 1st-party: Route `headers` export sets `Cache-Control` (deepest route wins; `parentHeaders` merges). `prerender` config is build-time only, with no ISR/revalidate option. Vercel's docs show `s-maxage=1, stale-while-revalidate=59` via `headers`. ([headers](https://reactrouter.com/how-to/headers), [pre-rendering](https://reactrouter.com/how-to/pre-rendering), [react-router](https://vercel.com/docs/frameworks/frontend/react-router))
 - **Route prefetching** — ✅ 1st-party: `<Link prefetch="none|intent|render|viewport">`, default `none`, uses `<link rel="prefetch">`. Lazy route discovery is on by default and batch-discovers rendered links; `discover="none"` opts out. ([Link](https://reactrouter.com/api/components/Link), [lazy-route-discovery](https://reactrouter.com/explanation/lazy-route-discovery), [react-router.config.ts](https://reactrouter.com/api/framework-conventions/react-router.config.ts))
+- **Streaming SSR** — ✅ 1st-party: Return a promise from a `loader` without awaiting it, then render it with `<Await resolve={...}>` inside `<Suspense>`; the awaited data renders first and the rest streams in. The loader must return an object with keys, not a single promise. ([suspense](https://reactrouter.com/how-to/suspense))
+- **Early Hints / preload headers** — 🔧 Manual: No first-party preload `Link` headers or 103 Early Hints documented. The route `headers` export can set a `Link` header by hand, with the asset URLs listed by the app. ([headers](https://reactrouter.com/how-to/headers))
 - **Islands / partial hydration / lazy slices** — 🧪 Experimental: Experimental RSC (React 19+): `unstable_reactRouterRSC` from `@react-router/dev/vite` plus experimental `@vitejs/plugin-rsc`; `unstable_`-prefixed and still unstable in 8.5.2. No islands or partial-hydration primitive documented. `splitRouteModules` only splits client exports. ([react-server-components](https://reactrouter.com/how-to/react-server-components), [code-splitting](https://reactrouter.com/explanation/code-splitting))
 - **Per-route render modes** — ✅ 1st-party: `prerender` (stable config) takes a per-URL list, so listed paths are static while the rest are server-rendered (`ssr: true`) or served from the SPA fallback (`ssr: false`); `clientLoader` skips server data per route. `ssr` itself is global, with no per-route export; `ssr: "unstable_api-only"` is experimental (v8.5.0). ([rendering](https://reactrouter.com/start/framework/rendering), [pre-rendering](https://reactrouter.com/how-to/pre-rendering), [spa](https://reactrouter.com/how-to/spa))
 - **Art-directed / modern-format images (`<picture>`)** — 🔧 Manual: No first-party `<picture>` helper documented; hand-write the markup. ([styling](https://reactrouter.com/explanation/styling))
@@ -1493,6 +1832,7 @@ Unscored extras:
 - **Built-in bundle analysis** — 🧪 Third-party: No first-party analyzer documented; the code-splitting page does not mention one; the third-party route is a community Vite/Rollup visualizer such as [rollup-plugin-visualizer](https://github.com/btd/rollup-plugin-visualizer), added by hand. No React Router page recommends one. ([code-splitting](https://reactrouter.com/explanation/code-splitting))
 - **Third-party script strategies** — 🔧 Manual: No first-party strategy documented; `<Scripts>` renders the app runtime and only spreads attributes (`crossOrigin`, `nonce`), with no `async`/`defer` strategy documented. ([Scripts](https://reactrouter.com/api/components/Scripts))
 - **Portable multi-host deployment** — 🧪 Third-party: React Router-maintained adapters: `@react-router/serve` and `@react-router/express` (Node), `@react-router/cloudflare`, and `@react-router/architect` (AWS); v8 removed the Cloudflare dev proxy in favor of `@cloudflare/vite-plugin`. Vercel (`@vercel/react-router` preset) and Netlify (`@netlify/vite-plugin-react-router`) are host-maintained, not React Router-owned, so two of the four hosts this repo targets rely on host packages. ([adapter](https://reactrouter.com/api/other-api/adapter), [deploying](https://reactrouter.com/start/framework/deploying), [react-router](https://vercel.com/docs/frameworks/frontend/react-router), [react-router](https://docs.netlify.com/build/frameworks/framework-setup-guides/react-router/), [react-router](https://developers.cloudflare.com/workers/framework-guides/web-apps/react-router/))
+- **Service worker / offline support** — 🔧 Manual: No service worker support documented. The community `@vite-pwa/remix` package (0.2.0, published 2025-03-30) targets Remix and does not state React Router v8 support, so it is not credited. Hand-write the worker in `public/` and register it. ([vite-pwa remix](https://vite-pwa-org.netlify.app/frameworks/remix))
 
 Unscored extras:
 
@@ -1509,6 +1849,8 @@ Unscored extras:
 - **Image pipeline** — ✅ 1st-party: built-in `?jsx` import suffix (the `qwikCity()` Vite plugin bundles `vite-imagetools`; the docs call it "a built-in feature ... no additional packages or components need to be installed"): `<img>` with `srcset` (200-1200w webp), `loading=lazy`, `decoding=async`, width/height. Local `src` images only per docs; `@unpic/qwik` is third-party (per the docs) and `qwik-image` is a separate CDN-loader component whose repo now sits in the QwikDev org. ([image-optimization](https://qwik.dev/docs/integrations/image-optimization/))
 - **Data/HTML caching** — ✅ 1st-party: `cacheControl({ staleWhileRevalidate, maxAge, sMaxAge, public })` in `onGet` per layout/route. SSG via the static adapter; no data cache and no ISR documented. ([caching](https://qwik.dev/docs/caching/), [static-site-generation](https://qwik.dev/docs/guides/static-site-generation/))
 - **Route prefetching** — ✅ 1st-party: `<Link>` prefetches on hover by default (`prefetch={false}` disables). The preloader adds `<link rel="modulepreload">` for handlers and dependencies using a bundle graph; works only in preview/production builds. ([routing](https://qwik.dev/docs/routing/), [modules-prefetching](https://qwik.dev/docs/advanced/modules-prefetching/), [speculative-module-fetching](https://qwik.dev/docs/advanced/speculative-module-fetching/))
+- **Streaming SSR** — ✅ 1st-party: Return an async function from `routeLoader$` and render it with `<Resource>`; Qwik streams the HTML up to that point and sends the rest when the function resolves. Streaming is in order, tuned by the `streaming.inOrder` render options. ([streaming-deferred-loaders](https://qwik.dev/docs/cookbook/streaming-deferred-loaders/), [qwik-server](https://qwik.dev/api/qwik-server/))
+- **Early Hints / preload headers** — 🔧 Manual: No first-party preload `Link` headers or 103 Early Hints documented; the preloader works through `<link rel="modulepreload">` tags in the HTML. Set a `Link` header by hand with `headers.set()` in a request handler. ([speculative-module-fetching](https://qwik.dev/docs/advanced/speculative-module-fetching/), [caching](https://qwik.dev/docs/caching/))
 - **Islands / partial hydration / lazy slices** — ✅ 1st-party: Resumability: no hydration step; state and listeners are serialized in HTML and handler chunks load lazily. The FAQ says Qwik does not use partial hydration (islands). `qwikify$` (`@builder.io/qwik-react`) gives React islands with `client:visible`/`client:idle`. ([resumable](https://qwik.dev/docs/concepts/resumable/), [faq](https://qwik.dev/docs/faq/), [react](https://qwik.dev/docs/integrations/react/))
 - **Per-route render modes** — ✅ 1st-party: SSG and SSR can be mixed per route; dynamic routes export `onStaticGenerate`. No per-route options beyond that documented; the Cloudflare Pages adapter has `ssg` `include`/`exclude`. ([static-site-generation](https://qwik.dev/docs/guides/static-site-generation/), [cloudflare-pages](https://qwik.dev/docs/deployments/cloudflare-pages/))
 - **Art-directed / modern-format images (`<picture>`)** — 🔧 Manual: `?jsx` emits `<img>`/`srcset` as webp (format overridable); the docs mention no `<picture>` or `sizes`, so no first-party `<picture>` documented. ([image-optimization](https://qwik.dev/docs/integrations/image-optimization/))
@@ -1516,6 +1858,7 @@ Unscored extras:
 - **Built-in bundle analysis** — 🧪 Third-party: No visualizer/analyzer documented. First-party knobs: `qwikVite` `entryStrategy` and `qsymbol`-event analytics. The Insights lab is prototyping-stage. ([bundle](https://qwik.dev/docs/guides/bundle/), [insights](https://qwik.dev/docs/labs/insights/))
 - **Third-party script strategies** — ✅ 1st-party: `qwik add partytown` (CLI integration shipped in `@builder.io/qwik`; it installs `@qwik.dev/partytown`, published from the QwikDev/partytown repo): render `QwikPartytown` with `forward=[...]`, mark scripts `type="text/partytown"`. The docs page itself names no npm package. ([partytown](https://qwik.dev/docs/integrations/partytown/))
 - **Portable multi-host deployment** — ✅ 1st-party: `qwik add` adapters: Node (`express`, `fastify`), `vercel-edge`, `netlify-edge`, `cloudflare-pages`, `cloudflare-workers`. Vercel and Netlify are Edge-runtime adapters only; the docs do not label adapters "first-party" (source is the QwikDev/qwik repo). ([deployments](https://qwik.dev/docs/deployments/), [node](https://qwik.dev/docs/deployments/node/), [vercel-edge](https://qwik.dev/docs/deployments/vercel-edge/), [netlify-edge](https://qwik.dev/docs/deployments/netlify-edge/), [cloudflare-pages](https://qwik.dev/docs/deployments/cloudflare-pages/), [cloudflare-workers](https://qwik.dev/docs/deployments/cloudflare-workers/))
+- **Service worker / offline support** — 🧪 Experimental: `@qwikdev/pwa` (0.0.4, published 2024-02-26 from the QwikDev org) adds a `qwikPwa()` Vite plugin and a `setupPwa()` call in `src/routes/service-worker.ts` that precaches built assets; its README says it is in its early stages, and qwik.dev does not document it. Qwik's own service worker only prefetched bundles and the preloader has replaced it. ([QwikDev/pwa](https://github.com/QwikDev/pwa), [bundle](https://qwik.dev/docs/guides/bundle/))
 
 Unscored extras:
 
@@ -1531,6 +1874,8 @@ Unscored extras:
 - **Image pipeline** — ✅ 1st-party: `NgOptimizedImage`: `priority` (fetchpriority=high, eager, SSR preload link), auto `srcset`, `placeholder` blur, lazy by default. Built-in loaders for Cloudflare Image Resizing, Cloudinary, ImageKit, Imgix, Netlify; it does not resize itself (the default loader is a no-op). ([image-optimization](https://angular.dev/guide/image-optimization))
 - **Data/HTML caching** — ✅ 1st-party: `RenderMode.Prerender` build-time HTML; the `HttpClient` transfer cache (`withHttpTransferCacheOptions`) reuses SSR responses on hydration; per-route `headers`. No ISR/revalidate or server data cache documented. ([ssr](https://angular.dev/guide/ssr), [withHttpTransferCacheOptions](https://angular.dev/api/platform-browser/withHttpTransferCacheOptions))
 - **Route prefetching** — ✅ 1st-party: Opt-in `withPreloading(PreloadAllModules)` preloads lazy route chunks; `@defer` has `prefetch on idle/viewport/hover`. No link hover/viewport prefetch documented. The default strategy is `NoPreloading`, so nothing is preloaded until `withPreloading(...)` is added. ([NoPreloading](https://angular.dev/api/router/NoPreloading), [PreloadAllModules](https://angular.dev/api/router/PreloadAllModules), [defer](https://angular.dev/guide/templates/defer))
+- **Streaming SSR** — 🔧 Manual: No streaming render documented. The SSR guide describes rendering the page to a complete HTML document and then sending it, and the word "stream" does not appear in it. ([ssr](https://angular.dev/guide/ssr))
+- **Early Hints / preload headers** — 🔧 Manual: No first-party preload `Link` headers or 103 Early Hints documented. Per-route `headers` in `ServerRoute` and `RESPONSE_INIT` can set a `Link` header by hand. ([ssr](https://angular.dev/guide/ssr))
 - **Islands / partial hydration / lazy slices** — ✅ 1st-party: Incremental hydration via `@defer` with `hydrate on idle/viewport/interaction/hover/immediate/timer/when` and `hydrate never`; the v22 guide says it is enabled by default with `provideClientHydration()`. Stable since v20 per the [roadmap](https://angular.dev/roadmap) (developer preview in v19), and on by default since v22.0.0, when `withIncrementalHydration` was deprecated ([withIncrementalHydration](https://angular.dev/api/platform-browser/withIncrementalHydration)); the v22 guide pages carry no stability label. ([incremental-hydration](https://angular.dev/guide/incremental-hydration), [hydration](https://angular.dev/guide/hydration))
 - **Per-route render modes** — ✅ 1st-party: `ServerRoute[]` in `app.routes.server.ts` with `RenderMode.Server/Client/Prerender`; `getPrerenderParams`, `fallback`, per-route `headers`/`status`; `outputMode: "static"` for server-less builds. Stable since v20 per the [roadmap](https://angular.dev/roadmap) (developer preview in v19); the guide itself carries no stability label. ([ssr](https://angular.dev/guide/ssr))
 - **Art-directed / modern-format images (`<picture>`)** — 🔧 Manual: The `NgOptimizedImage` page says `<picture>` is not supported yet ("on our roadmap"); no art direction or `<source type>` format fallback is documented. Format is left to the configured image-CDN loader (the page says only that the loader sets "size, format, and image quality transformations"). No first-party `<picture>` documented; hand-write it. ([image-optimization](https://angular.dev/guide/image-optimization))
@@ -1538,6 +1883,7 @@ Unscored extras:
 - **Built-in bundle analysis** — 🧪 Third-party: `ng build --stats-json` writes a stats file for an external esbuild analyzer; default budgets warn 500kb/error 1mb on `initial`. The viewer is external. ([build](https://angular.dev/cli/build), [build](https://angular.dev/tools/cli/build))
 - **Third-party script strategies** — 🔧 Manual: No first-party script-loading primitive documented (the runtime-performance page lists none). Rests on absence. ([runtime-performance](https://angular.dev/best-practices/runtime-performance))
 - **Portable multi-host deployment** — 🔧 Manual: Web-standard `AngularAppEngine` / `createRequestHandler` is portable, with `AngularNodeAppEngine` for Node and `outputMode: "static"`. SSR is documented for Node (first-party), Netlify (host-maintained `@netlify/angular-runtime`, Edge Function) and Cloudflare Workers: the Cloudflare guide scaffolds an SSR Worker through `create-cloudflare --framework=angular` (`AngularAppEngine`, `ssr.platform: "neutral"`), maintained by Cloudflare rather than the Angular team, though the guide page itself does not mention SSR and its automatic-configuration example is assets-only. Vercel lists Angular only as a zero-config frontend framework and no Vercel Angular SSR page was found, so the four hosts this repo targets are not all covered. The deployment page also lists third-party `ng deploy` builders. This portability judgment is lower confidence. ([ssr](https://angular.dev/guide/ssr), [angular](https://docs.netlify.com/build/frameworks/framework-setup-guides/angular/), [angular](https://developers.cloudflare.com/workers/framework-guides/web-apps/more-web-frameworks/angular/), [frontend](https://vercel.com/docs/frameworks/frontend), [deployment](https://angular.dev/tools/cli/deployment))
+- **Service worker / offline support** — ✅ 1st-party: `ng add @angular/pwa` adds `@angular/service-worker`, registers it, and creates `ngsw-config.json`; the build writes the hashed asset manifest, and the worker caches the app shell and configured data groups. ([getting-started](https://angular.dev/ecosystem/service-workers/getting-started), [service-workers](https://angular.dev/ecosystem/service-workers))
 
 Unscored extras:
 
@@ -1553,6 +1899,8 @@ Unscored extras:
 - **Image pipeline** — 🧪 Third-party: No image component or optimizer documented; the native-tag page and the full reference contain only an `og:image` meta example and plain `<img>`. `@marko/vite` rewrites static relative `<img src>` paths to hashed Vite assets but does not resize or convert. A host image CDN wired by hand is the third-party route, as for React Router and Ember. ([native-tag](https://markojs.com/docs/reference/native-tag))
 - **Data/HTML caching** — 🔧 Manual: Marko Run documents no data cache, ISR, or cache-header API. `@marko/run-adapter-static` builds the whole app into static files by crawling relative links (`urls` option for extras), with no revalidation and no per-route choice, so it does not cache a server-rendered app. Otherwise the app hand-sets `Cache-Control` on web-standard Request/Response, the same basis as Fresh. Our feature test passed only by setting `Cache-Control` by hand in the route's `GET` handler. ([adapters](https://markojs.com/docs/marko-run/adapters))
 - **Route prefetching** — 🔧 Manual: No prefetch/preload API in the Marko Run docs or full reference. Lazy `load` triggers (`visible`, `idle`, `media`, events) defer a tag's JS only; that is not route prefetch. ([lazy-loading](https://markojs.com/docs/reference/lazy-loading))
+- **Streaming SSR** — ✅ 1st-party: Streaming is the default. Marko flushes HTML up to each `<await>` and sends the rest when its promise resolves; a `<try>` with `@placeholder` opts into out-of-order streaming and shows the placeholder first. ([streaming](https://markojs.com/docs/explanation/streaming))
+- **Early Hints / preload headers** — 🔧 Manual: No first-party preload `Link` headers or 103 Early Hints documented. Handlers return web-standard `Response` objects, so a `Link` header is set by hand in a `+handler` or `+middleware` file. ([file-based-routing](https://markojs.com/docs/marko-run/file-based-routing))
 - **Islands / partial hydration / lazy slices** — ✅ 1st-party: Zero JS by default; the compiler ships only interactive code and the client resumes instead of re-running templates; `import X from "<tag>" with { load: "visible#hero" }` defers a tag bundle. The docs describe an islands-like result without a server/client component split. ([fine-grained-bundling](https://markojs.com/docs/explanation/fine-grained-bundling), [why-is-marko-fast](https://markojs.com/docs/explanation/why-is-marko-fast), [lazy-loading](https://markojs.com/docs/reference/lazy-loading))
 - **Per-route render modes** — 🔧 Manual: Marko Run documents streaming SSR; the static adapter is app-wide and `+meta.*` is static metadata only. No per-route render-mode switch documented. ([file-based-routing](https://markojs.com/docs/marko-run/file-based-routing), [adapters](https://markojs.com/docs/marko-run/adapters))
 - **Art-directed / modern-format images (`<picture>`)** — 🔧 Manual: All native HTML tags are supported, so `<picture>` is hand-written. No first-party image helper documented on the native-tag page or in the full reference. ([native-tag](https://markojs.com/docs/reference/native-tag))
@@ -1560,10 +1908,11 @@ Unscored extras:
 - **Built-in bundle analysis** — 🧪 Third-party: The CLI has only `dev`, `build`, `preview`; the Vite plugin options are `routesDir`, `adapter`, `trailingSlashes`. No first-party analyzer documented; Marko Run builds with Vite, so the third-party route is a community visualizer such as [rollup-plugin-visualizer](https://github.com/btd/rollup-plugin-visualizer). ([cli](https://markojs.com/docs/marko-run/cli), [vite-plugin](https://markojs.com/docs/marko-run/vite-plugin))
 - **Third-party script strategies** — 🔧 Manual: `<script>` is effect-like, not a loader; `<html-script>` emits a raw tag. No loading strategies documented. ([core-tag](https://markojs.com/docs/reference/core-tag))
 - **Portable multi-host deployment** — ✅ 1st-party: Official adapters for Node, Static and Netlify (Functions or Edge, needs `netlify.toml`) are on the adapters page. Cloudflare Workers (`@marko/run-adapter-cloudflare`) is announced as an official adapter in the markojs.com [October 2026 newsletter](https://markojs.com/docs/newsletter/october-2026) but is not yet on the adapters page. `@marko/run-adapter-vercel` (npm 0.1.1) is published from the `marko-js/run` repository by the same maintainers as `@marko/run` and is documented only in its repo README, not on markojs.com. None is labeled experimental. The `marko-books` port deploys with all three. ([adapters](https://markojs.com/docs/marko-run/adapters))
+- **Service worker / offline support** — 🔧 Manual: No service worker support documented in the Marko or Marko Run docs. Hand-write the worker, serve it as a static file, and register it from a `<script>`. ([file-based-routing](https://markojs.com/docs/marko-run/file-based-routing))
 
 Unscored extras:
 
-- Out-of-order HTML streaming with `<await>` and `<try>@placeholder`; lazy `load` triggers; automatic fine-grained bundling; CSP nonce support (`$global.cspNonce`). ([streaming](https://markojs.com/docs/explanation/streaming), [lazy-loading](https://markojs.com/docs/reference/lazy-loading), [fine-grained-bundling](https://markojs.com/docs/explanation/fine-grained-bundling), [template](https://markojs.com/docs/reference/template))
+- Lazy `load` triggers; automatic fine-grained bundling; CSP nonce support (`$global.cspNonce`). ([lazy-loading](https://markojs.com/docs/reference/lazy-loading), [fine-grained-bundling](https://markojs.com/docs/explanation/fine-grained-bundling), [template](https://markojs.com/docs/reference/template))
 
 ## Fresh
 
@@ -1574,6 +1923,8 @@ Unscored extras:
 - **Image pipeline** — 🧪 Third-party: The docs say there is no built-in optimization pipeline and suggest `vite-imagetools` or a CDN. Fresh adds long-lived cache headers to `src`/`srcset` (opt out with `data-fresh-disable-lock`); `asset()` / `assetSrcSet()` exist in `fresh/runtime`. ([static-files](https://usefresh.dev/docs/concepts/static-files), [api-reference](https://usefresh.dev/docs/advanced/api-reference))
 - **Data/HTML caching** — 🔧 Manual: No first-party cache documented; set `Cache-Control` by hand via `page(data, { headers })`. Build-time prerender exists only as an open, unmerged PR, not in the docs and not credited. ([data-fetching](https://usefresh.dev/docs/concepts/data-fetching), [3766](https://github.com/freshframework/fresh/pull/3766))
 - **Route prefetching** — 🔧 Manual: No first-party prefetch documented; partials (`f-client-nav`, `f-partial`) fetch on click only. ([partials](https://usefresh.dev/docs/advanced/partials))
+- **Streaming SSR** — 🔧 Manual: No streamed page rendering documented. The docs show a `ReadableStream` returned from an API handler only, and describe no way to flush part of a page early. ([common-patterns](https://usefresh.dev/docs/examples/common-patterns), [data-fetching](https://usefresh.dev/docs/concepts/data-fetching))
+- **Early Hints / preload headers** — 🔧 Manual: No first-party preload `Link` headers or 103 Early Hints documented. Set a `Link` header by hand through `page(data, { headers })` or a middleware. ([data-fetching](https://usefresh.dev/docs/concepts/data-fetching))
 - **Islands / partial hydration / lazy slices** — ✅ 1st-party: Islands are the core model: only island JS ships and bundles are code-split; files live in `islands/` or `(_islands)`; props must be serializable. No lazy/idle/visible hydration timing is documented; Preact `lazy()` + `<Suspense>` is documented for code-splitting an island. ([islands](https://usefresh.dev/docs/concepts/islands), [architecture](https://usefresh.dev/docs/concepts/architecture), [common-patterns](https://usefresh.dev/docs/examples/common-patterns))
 - **Per-route render modes** — 🔧 Manual: Pages render to HTML on the server; no per-route prerender/SPA/ISR option is documented (`RouteConfig` covers `routeOverride`, `skipAppWrapper`, `skipInheritedLayouts`, `csp` and `methods`; none selects a render mode). No first-party per-route render mode documented. ([architecture](https://usefresh.dev/docs/concepts/architecture), [routing](https://usefresh.dev/docs/concepts/routing), [file-routing](https://usefresh.dev/docs/concepts/file-routing))
 - **Art-directed / modern-format images (`<picture>`)** — 🔧 Manual: No first-party `<picture>` component documented; the docs point to `vite-imagetools` or a CDN, with markup hand-written. ([static-files](https://usefresh.dev/docs/concepts/static-files))
@@ -1581,6 +1932,7 @@ Unscored extras:
 - **Built-in bundle analysis** — 🧪 Third-party: No first-party analyzer documented; the Vite page mentions only `vite-plugin-inspect` as a debugging aid. ([vite](https://usefresh.dev/docs/advanced/vite))
 - **Third-party script strategies** — 🔧 Manual: No first-party script primitive documented; the head page lists `<script>` with no loading-strategy guidance. ([head](https://usefresh.dev/docs/advanced/head))
 - **Portable multi-host deployment** — 🔧 Manual: Documented: Deno Deploy, `deno compile`, Docker, and Cloudflare Workers (via `@cloudflare/vite-plugin` and a hand-written `server.js`; stability not stated). Node, Vercel, and Netlify are not documented; no official guide was found. ([deployment](https://usefresh.dev/docs/deployment), [cloudflare-workers](https://usefresh.dev/docs/deployment/cloudflare-workers), [docker](https://usefresh.dev/docs/deployment/docker), [deno-deploy](https://usefresh.dev/docs/deployment/deno-deploy))
+- **Service worker / offline support** — 🔧 Manual: No service worker support documented. Put a hand-written worker in `static/` and register it from an island. ([static-files](https://usefresh.dev/docs/concepts/static-files))
 
 Unscored extras:
 
@@ -1598,6 +1950,8 @@ Unscored extras:
 - **Image pipeline** — ✅ 1st-party: Angular's `NgOptimizedImage` from `@angular/common`, a required dependency of every Analog app: `ngSrc`, `priority`, automatic `srcset`, lazy loading, and loaders for Cloudflare, Cloudinary, ImageKit, Imgix and Netlify. It is an Angular-team package, and the Analog docs do not cover images. ([image-optimization](https://angular.dev/guide/image-optimization))
 - **Data/HTML caching** — ✅ 1st-party: `analog({ prerender: { routes } })` renders listed routes to static HTML at build time, `static: true` builds a server-less site, and prerendered server-side data is written as static files. Response headers are set with h3 `setResponseHeader` in middleware or API routes. No ISR or revalidate option documented. ([static-site-generation](https://analogjs.org/docs/features/server/static-site-generation), [middleware](https://analogjs.org/docs/features/routing/middleware))
 - **Route prefetching** — ✅ 1st-party: Angular Router preloading: pass `withPreloading(PreloadAllModules)` to `provideFileRouter(...)`, which accepts Angular router features, to preload lazy route chunks. The Analog docs show other router features there (`withComponentInputBinding`, `withNavigationErrorHandler`) and no preloading example. No link hover or viewport prefetch documented. ([routing](https://analogjs.org/docs/features/routing/overview), [PreloadAllModules](https://angular.dev/api/router/PreloadAllModules))
+- **Streaming SSR** — 🧪 Experimental: The streaming SSR page says it "is experimental and opt-in". Set `analog({ experimental: { streaming: true } })` in the Vite config and export `renderStream(AppComponent, config)` from `@analogjs/router/server` in `main.server.ts`; it needs Angular 21+ and Vite 6+, and builds on incremental hydration (`@defer` blocks). The default SSR path stays buffered. ([streaming-ssr](https://analogjs.org/docs/features/server/streaming-ssr))
+- **Early Hints / preload headers** — 🔧 Manual: No first-party preload `Link` headers or 103 Early Hints documented. Set a `Link` header by hand with h3 `setResponseHeader` in server middleware. ([middleware](https://analogjs.org/docs/features/routing/middleware))
 - **Islands / partial hydration / lazy slices** — ✅ 1st-party: Angular incremental hydration: `@defer (hydrate on viewport | idle | interaction | immediate)` blocks, enabled with `provideClientHydration(withIncrementalHydration())` on Angular 21 and by default on Angular 22. Analog's streaming SSR page builds on it; streaming itself is experimental (`experimental.streaming`). ([streaming-ssr](https://analogjs.org/docs/features/server/streaming-ssr), [incremental-hydration](https://angular.dev/guide/incremental-hydration))
 - **Per-route render modes** — ✅ 1st-party: SSR is the default; `routeRules: { '/admin/**': { ssr: false } }` in the Nitro config renders matching routes on the client only, and `prerender.routes` lists the routes built as static HTML. ([server-side-rendering](https://analogjs.org/docs/features/server/server-side-rendering), [static-site-generation](https://analogjs.org/docs/features/server/static-site-generation))
 - **Art-directed / modern-format images (`<picture>`)** — 🔧 Manual: The `NgOptimizedImage` page says `<picture>` is not supported yet; hand-write the markup. ([image-optimization](https://angular.dev/guide/image-optimization))
@@ -1605,10 +1959,10 @@ Unscored extras:
 - **Built-in bundle analysis** — 🧪 Third-party: No first-party analyzer documented; Analog builds with Vite, so the third-party route is a community visualizer such as [rollup-plugin-visualizer](https://github.com/btd/rollup-plugin-visualizer). ([deployment](https://analogjs.org/docs/features/deployment/overview))
 - **Third-party script strategies** — 🔧 Manual: No first-party script-loading primitive documented in the Analog docs. ([server-side-rendering](https://analogjs.org/docs/features/server/server-side-rendering))
 - **Portable multi-host deployment** — ✅ 1st-party: Nitro presets ship inside Analog's own `@analogjs/vite-plugin-nitro`. Node is the default output, Vercel and Netlify deploy "with no additional configuration", and Cloudflare Pages needs `BUILD_PRESET=cloudflare-pages`. ([deployment](https://analogjs.org/docs/features/deployment/overview), [providers](https://analogjs.org/docs/features/deployment/providers), [vite-plugin-nitro](https://analogjs.org/docs/packages/vite-plugin-nitro/overview))
+- **Service worker / offline support** — 🔧 Manual: No service worker support documented in the Analog docs. Angular's `ng add @angular/pwa` "enables service worker build support in the CLI", and Analog replaces the Angular CLI build with Vite, so the `ngsw.json` asset manifest is not generated for you. Hand-write the worker and register it. ([angular service workers](https://angular.dev/ecosystem/service-workers/getting-started), [migrating](https://analogjs.org/docs/guides/migrating))
 
 Unscored extras:
 
-- Experimental streaming SSR: `analog({ experimental: { streaming: true } })` plus `renderStream`; needs Angular 21 and Vite 6. ([streaming-ssr](https://analogjs.org/docs/features/server/streaming-ssr))
 - A server function read resolved during SSR is transferred to the client, so the browser does not refetch it on hydration. ([server-functions](https://analogjs.org/docs/features/data-fetching/server-functions))
 - Automatic `sitemap.xml` for prerendered pages, and prerendering of Markdown pages from a content directory. ([static-site-generation](https://analogjs.org/docs/features/server/static-site-generation))
 
@@ -1621,6 +1975,8 @@ Unscored extras:
 - **Image pipeline** — 🧪 Third-party: No image component or optimizer documented; the `+image` setting only sets the `og:image` preview. Use a community package such as `@unpic/react` or a host image CDN. ([image](https://vike.dev/image), [static-directory](https://vike.dev/static-directory))
 - **Data/HTML caching** — ✅ 1st-party: `prerender: true` renders pages to static HTML at build time, per page or for the whole app. `+headersResponse` sets response headers such as `Cache-Control` per page; it is marked beta. On Vercel, `vercel: { isr: { expiration: 30 } }` in a page's `+config.js` opts into ISR through `vite-plugin-vercel`. No data cache documented. ([pre-rendering](https://vike.dev/pre-rendering), [headersResponse](https://vike.dev/headersResponse), [vercel](https://vike.dev/vercel))
 - **Route prefetching** — ✅ 1st-party: `prefetchStaticAssets: 'hover' | 'viewport' | false`, default `'hover'`, per page, with a per-link `data-prefetch-static-assets` override and a programmatic `prefetch('/url')`. Only static assets are prefetched; page data is not. ([prefetchStaticAssets](https://vike.dev/prefetchStaticAssets), [prefetch](https://vike.dev/prefetch))
+- **Streaming SSR** — ✅ 1st-party: Set `stream: true` in a `+config.js`, for the whole app or per page; it needs `ssr: true` and one of `vike-react`, `vike-vue` or `vike-solid`. The default is `false`. The deferred parts are the UI framework's own async boundaries: `vike-react` streams through `react-streaming`, and `vike-react-query`'s `useSuspenseQuery()` shows a `<Suspense>` fallback while the rest of the page renders. ([stream](https://vike.dev/stream), [streaming](https://vike.dev/streaming), [vike-react-query](https://github.com/vikejs/vike-react/tree/main/packages/vike-react-query))
+- **Early Hints / preload headers** — ✅ 1st-party: Vike builds the list of a page's assets as `pageContext.httpResponse.earlyHints` (each entry has an `earlyHintLink` value), so the app does not list assets by hand. The server sends the 103 with its runtime's API, e.g. `res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) })` on Node 18+. Not marked experimental or beta. ([preloading](https://vike.dev/preloading))
 - **Islands / partial hydration / lazy slices** — 🔧 Manual: No islands or partial hydration documented. `<ClientOnly>` renders a component in the browser only, which is client-only rendering. The React Server Components extension `vike-react-rsc` is listed as work in progress (npm 0.0.0) and is not credited. ([ClientOnly](https://vike.dev/ClientOnly), [extensions](https://vike.dev/extensions))
 - **Per-route render modes** — ✅ 1st-party: Per-page `ssr: false` (SPA) and `prerender: true | false` (SSG) in `+config.js`, inherited by every page under that directory; `stream` is per page too. ([ssr](https://vike.dev/ssr), [pre-rendering](https://vike.dev/pre-rendering), [stream](https://vike.dev/stream))
 - **Art-directed / modern-format images (`<picture>`)** — 🔧 Manual: No first-party `<picture>` helper documented; hand-write the markup. ([image](https://vike.dev/image))
@@ -1628,11 +1984,10 @@ Unscored extras:
 - **Built-in bundle analysis** — 🧪 Third-party: No first-party analyzer documented; Vike is a Vite plugin, so the third-party route is a community visualizer such as [rollup-plugin-visualizer](https://github.com/btd/rollup-plugin-visualizer). ([settings](https://vike.dev/settings))
 - **Third-party script strategies** — 🔧 Manual: No first-party script-loading strategy documented; `+Head` and `+client.js` are where scripts are added by hand. ([head-tags](https://vike.dev/head-tags))
 - **Portable multi-host deployment** — 🧪 Third-party: `+server` gives a built-in server for Node, Bun and Deno self-hosting. Cloudflare uses Cloudflare's `@cloudflare/vite-plugin`, Netlify uses Netlify's `@netlify/vite-plugin`, and Vercel uses `vite-plugin-vercel`; none of the three is a `vike` package. ([self-host](https://vike.dev/self-host), [cloudflare](https://vike.dev/cloudflare), [vercel](https://vike.dev/vercel), [netlify](https://vike.dev/netlify))
+- **Service worker / offline support** — 🔧 Manual: No service worker support documented in the Vike docs or its extension list. Hand-write the worker, serve it from `public/`, and register it from `+client.js`. ([static-directory](https://vike.dev/static-directory), [extensions](https://vike.dev/extensions))
 
 Unscored extras:
 
-- HTML streaming per page with `+stream` (`vike-react` uses `react-streaming`). ([stream](https://vike.dev/stream))
-- 103 Early Hints from `pageContext.httpResponse.earlyHints`. ([preloading](https://vike.dev/preloading))
 - `+precompress` writes `.br` and `.gz` files at build time. ([precompress](https://vike.dev/precompress))
 - `+csp` adds a per-request nonce; `csp: { sri: true }` adds Subresource Integrity hashes to injected tags. ([csp](https://vike.dev/csp))
 
@@ -1645,6 +2000,8 @@ Unscored extras:
 - **Image pipeline** — 🧪 Third-party: No image component or optimizer documented; images are plain `<img>` tags served from `public/`. The third-party route is the host's [Cloudflare Images transformations](https://developers.cloudflare.com/images/transform-images/), wired by hand. ([public-assets](https://docs.rwsdk.com/guides/frontend/public-assets))
 - **Data/HTML caching** — 🔧 Manual: No prerender, ISR or cache API documented; set `Cache-Control` by hand on the response headers. The client-navigation guide says RSC payload requests are GETs so browsers and CDNs can cache them. ([routing](https://docs.rwsdk.com/core/routing), [client-side-nav](https://docs.rwsdk.com/guides/frontend/client-side-nav))
 - **Route prefetching** — ✅ 1st-party: With client-side navigation on, `<link rel="x-prefetch" href="/about" />` makes RedwoodSDK fetch that route in the background after each navigation and store the response in the browser Cache API. Needs the `onHydrated` callback from `initClientNavigation()`. No hover or viewport trigger documented. ([client-side-nav](https://docs.rwsdk.com/guides/frontend/client-side-nav))
+- **Streaming SSR** — ✅ 1st-party: Server components are "rendered on the server as HTML and then streamed to the client". Wrap an async server component in `<Suspense fallback={...}>` to show a loading state while its data is fetched. Nothing to enable. ([react-server-components](https://docs.rwsdk.com/core/react-server-components))
+- **Early Hints / preload headers** — 🔧 Manual: No first-party preload `Link` headers or 103 Early Hints documented; the Document example hand-writes `<link rel="modulepreload" href="/src/client.tsx" />`. Set a `Link` header by hand with `requestInfo.response.headers` in middleware. ([documents](https://docs.rwsdk.com/guides/frontend/documents), [routing](https://docs.rwsdk.com/core/routing))
 - **Islands / partial hydration / lazy slices** — ✅ 1st-party: React Server Components are the default; only components marked `"use client"` ship JavaScript and hydrate. ([react-server-components](https://docs.rwsdk.com/core/react-server-components))
 - **Per-route render modes** — ✅ 1st-party: `render(Document, routes, { ssr: false })` renders a group of routes on the client only, and `{ rscPayload: false }` serves a group as static HTML with no hydration. No build-time prerender documented. ([sdk-router](https://docs.rwsdk.com/reference/sdk-router))
 - **Art-directed / modern-format images (`<picture>`)** — 🔧 Manual: No first-party `<picture>` helper documented; hand-write the markup. ([public-assets](https://docs.rwsdk.com/guides/frontend/public-assets))
@@ -1652,6 +2009,7 @@ Unscored extras:
 - **Built-in bundle analysis** — 🧪 Third-party: No first-party analyzer documented; RedwoodSDK is a Vite plugin, so the third-party route is a community visualizer such as [rollup-plugin-visualizer](https://github.com/btd/rollup-plugin-visualizer). ([hosting](https://docs.rwsdk.com/core/hosting))
 - **Third-party script strategies** — 🔧 Manual: No first-party script-loading strategy documented; scripts go in the Document by hand, and the security page covers only the CSP nonce they need. ([documents](https://docs.rwsdk.com/guides/frontend/documents), [security](https://docs.rwsdk.com/core/security))
 - **Portable multi-host deployment** — 🔧 Manual: Cloudflare Workers is the only documented host; no Node, Vercel or Netlify target is documented. ([hosting](https://docs.rwsdk.com/core/hosting))
+- **Service worker / offline support** — 🔧 Manual: No service worker support documented; the public assets guide shows only a `<link rel="manifest">` tag. Hand-write the worker in `public/` and register it from a client component. ([public-assets](https://docs.rwsdk.com/guides/frontend/public-assets))
 
 Unscored extras:
 
@@ -1668,6 +2026,8 @@ Unscored extras:
 - **Image pipeline** — 🧪 Third-party: The asset server has a first-party transform pipeline: `files.transforms` defined with `defineFileTransform`, requested as `assets.getHref(path, { transform: [["resize", "400"], "webp"] })`, with `createFsFileCache()` for results. The resize and format code is written by the app with the third-party Sharp library, and there is no image component or `srcset` helper. ([files-and-assets](https://docs.remix.run/files-and-assets/), [assets](https://docs.remix.run/api/assets/))
 - **Data/HTML caching** — 🔧 Manual: No prerender, ISR or data cache documented; actions return standard `Response` objects and set `Cache-Control` by hand. Fingerprinted assets are served with `Cache-Control: public, max-age=31536000, immutable`. ([request-handling](https://docs.remix.run/request-handling/), [assets](https://docs.remix.run/api/assets/))
 - **Route prefetching** — ✅ 1st-party: `<a href="/products/shirt" data-rmx-prefetch="intent">` or `"viewport"` loads the destination before navigation; `prefetch()` from `remix/component` does it from code. ([component](https://docs.remix.run/api/component/#prefetching), [interactivity](https://docs.remix.run/interactivity/))
+- **Streaming SSR** — ✅ 1st-party: Give a `<Frame src="...">` a `fallback`; the fallback is part of the initial HTML, and when the frame's route finishes Remix streams its HTML and replaces the fallback. The `render()` middleware from `remix/middleware/render` streams the component tree. A frame without a fallback blocks the first chunk. ([streaming-ui-with-frames](https://docs.remix.run/streaming-ui-with-frames/))
+- **Early Hints / preload headers** — 🔧 Manual: No first-party preload `Link` headers or 103 Early Hints documented; the asset server returns module `preloads` that the document renders as `<link rel="modulepreload">` tags. Set a `Link` header by hand on the returned `Response`. ([assets](https://docs.remix.run/api/assets/), [files-and-assets](https://docs.remix.run/files-and-assets/))
 - **Islands / partial hydration / lazy slices** — ✅ 1st-party: Pages are server-rendered HTML; only components wrapped in `clientEntry(import.meta.url, Component)` hydrate. `<Frame src="..." fallback={...}>` streams a server-rendered region into the page and can load it lazily. ([interactivity](https://docs.remix.run/interactivity/#cliententry), [streaming-ui-with-frames](https://docs.remix.run/streaming-ui-with-frames/))
 - **Per-route render modes** — 🔧 Manual: Routes render on the server per request. `remix/spa` runs a whole app as a client-rendered app; no per-route prerender or SPA switch is documented. ([spa](https://docs.remix.run/api/spa/), [request-handling](https://docs.remix.run/request-handling/))
 - **Art-directed / modern-format images (`<picture>`)** — 🔧 Manual: No first-party `<picture>` helper documented; hand-write `<picture>` with transform URLs from `assets.getHref()`. ([files-and-assets](https://docs.remix.run/files-and-assets/))
@@ -1675,46 +2035,47 @@ Unscored extras:
 - **Built-in bundle analysis** — 🔧 Manual: There are no bundles to analyze: the asset server compiles modules on request and the browser loads them one by one. `remix assets` lists every reachable file and `remix assets inspect <url-or-file>` explains one mapping; neither reports sizes. ([files-and-assets](https://docs.remix.run/files-and-assets/), [assets](https://docs.remix.run/api/assets/))
 - **Third-party script strategies** — 🔧 Manual: No first-party script-loading strategy documented; add `<script>` tags to the document by hand. ([rendering-ui](https://docs.remix.run/rendering-ui/))
 - **Portable multi-host deployment** — 🔧 Manual: The router is a Fetch handler. Node runs it through `remix/node-fetch-server`, and the docs show Bun, Deno and Cloudflare Worker entries; the static-file and compression middleware are Node-only. No Vercel or Netlify setup is documented, and the Production chapter covers the Node server. ([request-handling](https://docs.remix.run/request-handling/#alternate-runtimes-bun-deno-workers), [production](https://docs.remix.run/production/), [node-fetch-server](https://docs.remix.run/api/node-fetch-server/))
+- **Service worker / offline support** — 🔧 Manual: No service worker support documented in the Remix 3 guides or API reference. Hand-write the worker, serve it through the asset server or a static route, and register it from a client entry. ([files-and-assets](https://docs.remix.run/files-and-assets/))
 
 Unscored extras:
 
 - No application build step: the asset server compiles TypeScript and JSX per module, and an import map keeps fingerprints per module so one changed file does not invalidate the files that import it. ([files-and-assets](https://docs.remix.run/files-and-assets/))
-- `<Frame>` regions stream as they resolve and can be reloaded without a full navigation. ([streaming-ui-with-frames](https://docs.remix.run/streaming-ui-with-frames/))
+- `<Frame>` regions can be reloaded without a full navigation. ([streaming-ui-with-frames](https://docs.remix.run/streaming-ui-with-frames/))
 - Module preloads for client entries are generated by the asset server. ([assets](https://docs.remix.run/api/assets/))
 
 ## Completeness score and ranking
 
 ### How to read the ranking
 
-Completeness % = (critical-path levers + other features) / 24, rounded to a whole percent. It measures the breadth of first-party and ecosystem performance features, not speed: items are unweighted, rows are not normalized against each other, and the islands row merges partial hydration, server islands, and lazy slices (best label). No measurements are used. Ties share a rank (2, 2, 4) and keep the earlier column order. Scores use the revised rubric and are not comparable with earlier versions.
+Completeness % = (critical-path levers + other features) / 30, rounded to a whole percent. It measures the breadth of first-party and ecosystem performance features, not speed: items are unweighted, rows are not normalized against each other, and the islands row merges partial hydration, server islands, and lazy slices (best label). No measurements are used. Ties share a rank (2, 2, 4) and keep the earlier column order. Scores use the revised rubric and are not comparable with earlier versions.
 
 ### How to recompute it
 
 1. Score each cell: ✅ = 2, 🧪 = 1, 🔧 = 0.
-2. Sum each table's column to get the score row (max 10 for the critical-path levers, max 14 for the other features).
-3. Add the two scores for the total (max 24), then divide by 24 for the completeness percentage. For example, Pracht: 10 + 12 = 22, and 22 / 24 rounds to 92%.
+2. Sum each table's column to get the score row (max 14 for the critical-path levers, max 16 for the other features).
+3. Add the two scores for the total (max 30), then divide by 30 for the completeness percentage. For example, Pracht: 14 + 12 = 26, and 26 / 30 rounds to 87%.
 
-| Rank | Framework | Critical-path levers (max 10) | Other features (max 14) | Total (max 24) | Completeness |
+| Rank | Framework | Critical-path levers (max 14) | Other features (max 16) | Total (max 30) | Completeness |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Astro | 10 | 13 | 23 | 96% |
-| 2 | Pracht | 10 | 12 | 22 | 92% |
-| 3 | Nuxt | 9 | 12 | 21 | 88% |
-| 4 | Next | 9 | 11 | 20 | 83% |
-| 4 | Qwik City | 9 | 11 | 20 | 83% |
-| 6 | SvelteKit | 9 | 10 | 19 | 79% |
-| 7 | Angular (SSR) | 9 | 7 | 16 | 67% |
-| 7 | Analog | 7 | 9 | 16 | 67% |
-| 9 | SolidStart | 6 | 9 | 15 | 63% |
-| 9 | Waku | 6 | 9 | 15 | 63% |
-| 11 | TanStack Start (React) | 7 | 7 | 14 | 58% |
-| 11 | TanStack Start (Solid) | 7 | 7 | 14 | 58% |
-| 13 | React Router | 6 | 7 | 13 | 54% |
-| 14 | Vike | 6 | 6 | 12 | 50% |
-| 15 | RedwoodSDK | 4 | 7 | 11 | 46% |
-| 16 | Marko | 2 | 7 | 9 | 38% |
-| 17 | Remix 3 | 6 | 2 | 8 | 33% |
-| 18 | Fresh | 2 | 5 | 7 | 29% |
-| 19 | Ember | 2 | 3 | 5 | 21% |
+| 1 | Pracht | 14 | 12 | 26 | 87% |
+| 1 | Astro | 12 | 14 | 26 | 87% |
+| 3 | Next | 13 | 12 | 25 | 83% |
+| 3 | SvelteKit | 13 | 12 | 25 | 83% |
+| 5 | Nuxt | 11 | 13 | 24 | 80% |
+| 6 | Qwik City | 11 | 12 | 23 | 77% |
+| 7 | Angular (SSR) | 9 | 9 | 18 | 60% |
+| 8 | SolidStart | 8 | 9 | 17 | 57% |
+| 8 | TanStack Start (React) | 10 | 7 | 17 | 57% |
+| 8 | TanStack Start (Solid) | 10 | 7 | 17 | 57% |
+| 8 | Waku | 8 | 9 | 17 | 57% |
+| 8 | Analog | 8 | 9 | 17 | 57% |
+| 13 | Vike | 10 | 6 | 16 | 53% |
+| 14 | React Router | 8 | 7 | 15 | 50% |
+| 15 | RedwoodSDK | 6 | 7 | 13 | 43% |
+| 16 | Marko | 4 | 7 | 11 | 37% |
+| 17 | Remix 3 | 8 | 2 | 10 | 33% |
+| 18 | Fresh | 2 | 5 | 7 | 23% |
+| 19 | Ember | 2 | 3 | 5 | 17% |
 
 Treat this as a rough capability count only, not a performance prediction.
 
@@ -1745,36 +2106,49 @@ Versions below come from each port's `package.json` in the port repositories lin
 - Ember's 🔧 cells (CSS, scripts) and 🧪 third-party cells (fonts, images via the community `@responsive-image/ember`, analysis) rest on the absence of a first-party primitive: the Ember Vite guide covers build setup only; the guides' only CSS and asset material is a generic HTML/CSS/JavaScript primer and the tutorial's CSS-and-assets section (`app/styles/app.css`, `public/` for images and fonts); Embroider's [Analyzing Bundles](https://github.com/embroider-build/embroider/blob/main/docs/analyzing.md) page defers to Vite tooling. The older cli.emberjs.com asset-compilation page is deprecated and covers the classic pipeline, so it is not cited.
 - Cells where the project owner's label differs from what the linked docs show (kept as given): SolidStart per-route render modes ✅ (an app-level Nitro prerender list plus Nitro `routeRules`; Nitro is not a Solid-team package and there is no per-route SSR/SPA switch); Next and Pracht art direction 🔧 (stable first-party `getImageProps()` helpers exist; scored 🔧 because neither ships a `<picture>`-emitting component); Waku data caching ✅ ([`waku-cache`](https://waku.gg/guides/explicit-caching) is a separate, still-evolving package, and the migration guide says to add caching explicitly); Ember data caching 🔧 (WarpDrive ships a first-party client request cache, [docs](https://warp-drive.io/guides/configuration/advanced)). In the Data/HTML caching row, ✅ is given where vendor docs describe build-time prerender or static output plus response cache headers, even with no framework data cache (SvelteKit, TanStack Start, React Router, Qwik City, Angular). SolidStart is 🧪 because its cache (Nitro `routeRules` and `defineCachedHandler`) comes from Nitro, which the Solid team does not maintain; counted as first-party, as the Solid docs present Nitro, it would gain 1 point. Marko and Fresh stay 🔧 because they document only a hand-set `Cache-Control` header (Marko's static adapter exports the whole app and does not cache a server-rendered one).
 - Nuxt lazy hydration is on by default and documented without a warning on the components page, but its config key is `experimental.lazyHydration` on the [Experimental Features](https://nuxt.com/docs/4.x/guide/going-further/experimental-features) page; the islands cell is 🧪 on that basis, as are experimental server components and `<NuxtIsland>`.
-- Nuxt bundle analysis 🧪: the `nuxt analyze` command is documented as experimental; the `build.analyze` config option carries no experimental label but, with the Vite builder, relies on the community `rollup-plugin-visualizer` being installed. If that flag were counted as a stable first-party path the cell would be ✅ and Nuxt's total 22 (92%, tied with Pracht at rank 2).
-- `@sveltejs/enhanced-img` is 1.0.1 on npm and the svelte.dev images page carries no experimental label, but the package README (npm and GitHub main) still says "This package is experimental. It uses pre-1.0 versioning"; the SvelteKit image-pipeline and `<picture>` cells (✅) treat that README text as stale. Read literally, both cells would be 🧪 and SvelteKit's total would be 17 (71%).
+- Nuxt bundle analysis 🧪: the `nuxt analyze` command is documented as experimental; the `build.analyze` config option carries no experimental label but, with the Vite builder, relies on the community `rollup-plugin-visualizer` being installed. If that flag were counted as a stable first-party path the cell would be ✅ and Nuxt's total 25 (83%, tied with Next and SvelteKit at rank 3).
+- `@sveltejs/enhanced-img` is 1.0.1 on npm and the svelte.dev images page carries no experimental label, but the package README (npm and GitHub main) still says "This package is experimental. It uses pre-1.0 versioning"; the SvelteKit image-pipeline and `<picture>` cells (✅) treat that README text as stale. Read literally, both cells would be 🧪 and SvelteKit's total would be 23 (77%).
 - SolidStart image pipeline and `<picture>` (✅): `@solidjs/image` is a Solid-team package (GitHub solidjs/solid-image, npm) but is absent from docs.solidjs.com; the labels rest on the package README.
 - Astro, React Router, Qwik City, Angular, Marko and Fresh have `main` and `optimized` ports but are not in the Lighthouse runs yet; Analog, Vike, RedwoodSDK and Remix 3 have no port; every label is from vendor docs under the same rubric, not from the ports. Qwik and Astro rows were judged against the rubric as noted in their bullets.
 - Marko multi-host deployment (✅): the Cloudflare adapter is announced as official on markojs.com (October 2026 newsletter) but is not yet on the adapters page; the Vercel adapter is a first-party package documented only on npm and in the marko-js/run repo, not on markojs.com.
-- Marko data/HTML caching (🔧): if the app-wide `@marko/run-adapter-static` export were accepted as caching, the cell would be ✅ and Marko's first-table score would be 4 (total 11, 46%).
+- Marko data/HTML caching (🔧): if the app-wide `@marko/run-adapter-static` export were accepted as caching, the cell would be ✅ and Marko's first-table score would be 6 (total 13, 43%).
 - Qwik v2 (2.0.0-rc.5) differences are unverified; the Qwik labels use v1 docs. Qwik City 1.20.4 ships no Vercel Node/serverless adapter (`vercel-edge` only); a `cloudflare-workers` adapter is documented alongside `cloudflare-pages` and reuses the same adapter code.
 - Fresh build-time prerender exists only as an open PR and is not credited.
 - Fresh multi-host deployment (🔧) is a judgment from the documented hosts, as for Angular: Deno Deploy, `deno compile`, Docker and Cloudflare Workers (through Cloudflare's own `@cloudflare/vite-plugin`) are documented, but Node, Vercel and Netlify are not. Counting the Cloudflare page as third-party coverage would make this cell 🧪 and Fresh's second-table score 6.
-- Angular multi-host portability (🔧) is a judgment: Node is first-party and Netlify and Cloudflare SSR are host-maintained, but no Vercel SSR path is documented, so the cell is scored like Fresh (partial host coverage). If three of four hosts were accepted as 🧪, Angular's total would be 17 (71%). Angular font optimization (🧪): `optimization.fonts.inline` is first-party but only inlines the Google/Adobe font CSS; if that counted as font optimization the cell would be ✅ and Angular's total 17 (71%).
-- Angular bundle analysis (🧪): the `--stats-json` flag, the build size summary and size budgets are first-party and stable; only the module-level viewer (esbuild's analyze page) is external. Pracht is scored ✅ for a first-party size report plus budgets, so if that standard is applied Angular's cell becomes ✅ and its total 17 (71%).
+- Angular multi-host portability (🔧) is a judgment: Node is first-party and Netlify and Cloudflare SSR are host-maintained, but no Vercel SSR path is documented, so the cell is scored like Fresh (partial host coverage). If three of four hosts were accepted as 🧪, Angular's total would be 19 (63%). Angular font optimization (🧪): `optimization.fonts.inline` is first-party but only inlines the Google/Adobe font CSS; if that counted as font optimization the cell would be ✅ and Angular's total 19 (63%).
+- Angular bundle analysis (🧪): the `--stats-json` flag, the build size summary and size budgets are first-party and stable; only the module-level viewer (esbuild's analyze page) is external. Pracht is scored ✅ for a first-party size report plus budgets, so if that standard is applied Angular's cell becomes ✅ and its total 19 (63%).
 - React Router multi-host (🧪) is a judgment: Node, Cloudflare, and AWS adapters are maintained by the React Router team, while Vercel and Netlify are host-maintained; read literally, the rubric could give ✅.
 - Marko Run is 0.x (0.11.19 on npm; 0.11.17 in the port), pre-1.0.
-- Ember per-route render modes (🔧): community `vite-ember-ssr` can prerender a listed set of routes (`emberSsg({ routes })`), the same mechanism that earns React Router and SolidStart their ✅ when first-party. Credited as a community package it would be 🧪, giving Ember 6 (25%), still last.
+- Ember per-route render modes (🔧): community `vite-ember-ssr` can prerender a listed set of routes (`emberSsg({ routes })`), the same mechanism that earns React Router and SolidStart their ✅ when first-party. Credited as a community package it would be 🧪, giving Ember 6 (20%), still last.
 - React Router naming: "v7" in older material is the same framework mode that docs now call v8 (npm latest 8.5.2); the how-to pages give no minimum versions, but the [changelog](https://reactrouter.com/changelog) dates the `prerender` config to v7.0.0, unstable RSC Data Mode APIs to v7.7.0, and unstable RSC Framework Mode to v7.9.2.
 - Angular incremental-hydration and route-level render-mode stability (stable since v20) comes from the [Angular roadmap](https://angular.dev/roadmap), not from the guides.
 - Also flagged UNSOURCED inline and not affecting any label: Angular's default router preloading strategy (not stated on the fetched page), the behaviour of Astro's `security.csp` (unscored extra), and whether a Vite `?inline` CSS import works in Fresh.
+- Streaming SSR for Waku (✅): waku.gg has no streaming section. The label rests on the redirects and not-found guide, which describes behavior "inside a Suspense boundary after the shell has already been sent", and on React Server Components streaming by design.
+- Streaming SSR for Qwik City (✅) is in-order streaming with deferred loaders. Out-of-order streaming exists only in the Qwik v2 release candidate's labs docs and is not credited. Astro is also in-order; both are ✅ because the row asks only that the shell is flushed before slow data.
+- Streaming SSR for Angular, Fresh, and Ember (🔧) rests on the SSR docs describing no streamed page render. Angular's guide and Fresh's docs never say that streaming is unsupported.
+- Early Hints / preload headers for Next (✅): the `reactMaxHeadersLength` page says React emits preload headers "during prerendering" and that Next adds them to the response. It does not say whether fully dynamic responses get them, and Next documents no 103 of its own. Read as experimental-grade coverage the cell would be 🧪 and Next's total 24 (80%).
+- Early Hints / preload headers for SvelteKit and Pracht (✅): both add preload `Link` headers for built assets; only Pracht's Node adapter and Nuxt's experimental flag write a 103 from the framework. If the row required the framework to send the 103 on every host, SvelteKit would be 🔧 and Pracht would keep ✅ on Node only.
+- Early Hints / preload headers 🔧 cells (SolidStart, Waku, Ember, Astro, React Router, Qwik City, Angular, Marko, Fresh, Analog, RedwoodSDK, Remix 3) rest on the absence of a documented primitive. Cloudflare's Early Hints feature converts a cached `Link` header into a 103 on any framework; it is a host building block that still needs the app to set the header, so it is not credited as 🧪 third-party.
+- Service worker 🧪 third-party cells follow one rule: a framework-specific community package earns the credit (Serwist for Next, `@vite-pwa/nuxt`, `@vite-pwa/astro`), and the generic `vite-plugin-pwa` does not, because an SSR app still wires the navigation fallback by hand. Under a looser rule every Vite-based column (SolidStart, TanStack Start, Pracht, Waku, React Router, Marko, Fresh, Analog, Vike, RedwoodSDK) would be 🧪 and gain 1 point. Remix 3 has no Vite build.
+- Service worker for Qwik City (🧪 experimental): `@qwikdev/pwa` is published by the QwikDev org but is 0.0.4, was last published on 2024-02-26, and is not in the qwik.dev docs. If it is not accepted the cell is 🔧 and Qwik City's total 22 (73%).
+- Service worker for Ember (🔧): `ember-service-worker` 9.0.1 (2020) targets the classic Ember CLI pipeline. Counted as a community package the cell would be 🧪 and Ember's total 6 (20%). Service worker for React Router (🔧): `@vite-pwa/remix` targets Remix and was not confirmed against React Router v8.
+- Links for the three rows added on 2026-11-25 (streaming SSR, Early Hints / preload headers, service worker / offline support) were checked on that date. The ports were not changed for these rows, so none of the new snippets comes from a port. The Analog, Vike, RedwoodSDK and Remix 3 cells for these rows were read from the vendor docs on 2026-11-26.
 - Next `worker` strategy and Bun adapter status are taken from the linked docs as of this edit; Cloudflare/Netlify verified adapters are described there as in progress.
 - The linked Pracht docs are unversioned, so they describe the current release (1.0.1, which the port runs). Several ports pin pre-release builds: Nuxt (4.6.0 nightly on the optimized branches), Waku (1.0.0-rc.5, the newest release), TanStack Start Solid (2.0.0-rc.8), and the SolidStart pieces (Solid 2 RC, Nitro 3 beta). `@tanstack/react-start` itself is on stable 1.169.x, but both TanStack ports use a Nitro 3 beta. Vendor docs can change week to week.
 - SolidStart is not `@solidjs/start` here: Solid 2 (port pinned to 2.0.0-rc.6; 2.0.3 is npm latest) in `@solidjs/vite-plugin` start mode plus Nitro 3 beta. SolidStart v2 itself is stable on Solid 1 and its docs are at v1.solidjs.com. The doc links in this file are references, not a description of this port's build. Links to v1.solidjs.com describe released SolidStart v2 / Solid Router v1; links to docs.solidjs.com describe Solid 2 start mode.
-- No inline example (unsourced) because no repo file or linked doc page supplied one: CSS inlining for Waku and Ember; images for Waku and Ember; prefetching for Ember; islands for SolidStart and Ember; Next islands (prose only; the flag snippet is in section 4); Next and Ember per-route render modes; `<picture>` for SolidStart, TanStack Start (React and Solid), Pracht, Waku, and Ember; TanStack Start (React) and Pracht reactivity; bundle analysis for SvelteKit, SolidStart, TanStack Start, Waku, and Ember; third-party scripts for SvelteKit, SolidStart, Waku, and Ember; multi-host deployment for Ember. The TanStack Start (Solid) caching, prefetching, scripts, and deployment entries reuse the React snippet instead of repeating it, and its reactivity entry reuses the SolidStart one.
+- No inline example (unsourced) because no repo file or linked doc page supplied one: CSS inlining for Waku and Ember; images for Waku and Ember; prefetching for Ember; islands for SolidStart and Ember; Next islands (prose only; the flag snippet is in section 4); Next and Ember per-route render modes; `<picture>` for SolidStart, TanStack Start (React and Solid), Pracht, Waku, and Ember; TanStack Start (React) and Pracht reactivity; bundle analysis for SvelteKit, SolidStart, TanStack Start, Waku, and Ember; third-party scripts for SvelteKit, SolidStart, Waku, and Ember; multi-host deployment for Ember; streaming SSR for Waku and Ember; Early Hints / preload headers for Waku and Ember; service workers for SolidStart, TanStack Start (React and Solid), Pracht, Waku, and Ember. The TanStack Start (Solid) streaming and Early Hints entries, and its caching, prefetching, scripts, and deployment entries reuse the React snippet instead of repeating it, and its reactivity entry reuses the SolidStart one.
 - Analog, Vike, RedwoodSDK and Remix 3 have no Books port, so none of their labels was tried in a build. Every label is read from the vendor docs at the version on the framework's **Version** line.
-- Analog image pipeline, route prefetching, islands and reactivity (✅) rest on Angular-team packages (`NgOptimizedImage`, router preloading, incremental hydration, signals), following the rule that credits React Compiler to the React meta-frameworks. The Analog docs mention incremental hydration and signals but not `NgOptimizedImage` or `withPreloading`. If only Analog-team packages counted, the image and prefetching cells would be 🧪 and Analog's total 14 (58%).
+- Analog image pipeline, route prefetching, islands and reactivity (✅) rest on Angular-team packages (`NgOptimizedImage`, router preloading, incremental hydration, signals), following the rule that credits React Compiler to the React meta-frameworks. The Analog docs mention incremental hydration and signals but not `NgOptimizedImage` or `withPreloading`. If only Analog-team packages counted, the image and prefetching cells would be 🧪 and Analog's total 15 (50%).
 - Analog CSS inlining (🔧): the Analog docs list no critical-CSS option, and Angular CLI's `inlineCritical` belongs to the `angular.json` build that Analog replaces with Vite. Whether an Analog build can run that step was not confirmed.
-- Vike data/HTML caching (✅) rests on stable build-time pre-rendering; `+headersResponse` is marked beta and ISR is Vercel-only through `vite-plugin-vercel`. Vike multi-host (🧪) follows the TanStack Start and React Router cells: the Cloudflare, Netlify and Vercel plugins are not `vike` packages, although the Vike docs present them as the standard setup. Scored ✅, Vike's total would be 13 (54%).
+- Vike data/HTML caching (✅) rests on stable build-time pre-rendering; `+headersResponse` is marked beta and ISR is Vercel-only through `vite-plugin-vercel`. Vike multi-host (🧪) follows the TanStack Start and React Router cells: the Cloudflare, Netlify and Vercel plugins are not `vike` packages, although the Vike docs present them as the standard setup. Scored ✅, Vike's total would be 17 (57%).
 - Vike is 0.4.x and its React, Vue and Solid extensions are 0.x; the docs do not call the core experimental, so no cell is marked 🧪 for that.
 - RedwoodSDK per-route render modes (✅) covers client-only and static-HTML route groups; there is no build-time prerender. RedwoodSDK image pipeline (🧪) names Cloudflare Images, which the RedwoodSDK docs do not mention. RedwoodSDK data/HTML caching (🔧) is scored like Fresh: only hand-set headers are documented.
-- Remix 3 CSS inlining (✅) covers styles written with the `css(...)` mixin; a global stylesheet is still a linked file. If only whole-stylesheet inlining counted, the cell would be 🔧 and Remix 3's total 6 (25%).
-- Remix 3 image pipeline (🧪): the transform pipeline, URL syntax and file cache are first-party, but the resize code is written by the app with Sharp. Counting the pipeline alone would make the cell ✅ and the total 9 (38%).
+- Remix 3 CSS inlining (✅) covers styles written with the `css(...)` mixin; a global stylesheet is still a linked file. If only whole-stylesheet inlining counted, the cell would be 🔧 and Remix 3's total 8 (27%).
+- Remix 3 image pipeline (🧪): the transform pipeline, URL syntax and file cache are first-party, but the resize code is written by the app with Sharp. Counting the pipeline alone would make the cell ✅ and the total 11 (37%).
 - Remix 3 reactivity, bundle analysis, render modes and multi-host (🔧) rest on the docs describing a different model (explicit `handle.update()`, unbundled modules, per-request rendering) or documenting no primitive. The Remix docs name Node, Bun, Deno and Cloudflare Workers; if that counted as partial host coverage the multi-host cell would be 🧪.
+- Analog streaming SSR (🧪 experimental): the Analog page calls it experimental and opt-in. Counted as stable it would be ✅ and Analog's total 18 (60%).
+- Vike Early Hints (✅): Vike computes the asset list (`pageContext.httpResponse.earlyHints`), but the app's server writes the 103; Vike documents no preload `Link` response header. TanStack Start's `onEarlyHints` hook works the same way and is 🧪 only because it is marked experimental. If the row required the framework to send the 103 or the header itself, the cell would be 🔧 and Vike's total 14 (47%).
+- Analog service worker (🔧): `@angular/service-worker` is an Angular-team package, but its asset manifest comes from the Angular CLI build, which Analog replaces with Vite, and the Analog docs do not cover it. Credited like Analog's other Angular-team cells, it would be ✅ and Analog's total 19 (63%).
 - Several snippets are shortened (marked "omitted" or "abridged" in their captions) and some doc snippets are adapted from short quotes.
 
 ---
