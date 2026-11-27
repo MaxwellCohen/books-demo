@@ -8,7 +8,7 @@ This guide compares what nine framework columns provide (eight frameworks; TanSt
 
 **What is compared.** The first table covers five "critical-path levers": production CSS inlining, font optimization, the image pipeline, data/HTML caching, and route prefetching. They remove serialized requests from the critical path, so in principle they matter for first paint (not measured here). The [second table](#other-performance-features) covers seven other features: islands/lazy slices, per-route render modes, art-directed images, fine-grained reactivity, bundle analysis, third-party script strategies, and multi-host deployment.
 
-**Columns.** The TanStack Start column is split into the React and Solid ports. The Solid port runs `@tanstack/solid-start` 2.0.0-rc.8 on Solid 2 RC, while the linked TanStack guides are the `latest` (v1, Solid 1) docs; see [Lower-confidence claims](#lower-confidence-claims). The SolidStart column is not `@solidjs/start`: the port is a Solid 2 app, deliberately pinned to a release candidate (2.0.0-rc.6; Solid 2.0 has since shipped stable on 2026-11-17, npm `latest` 2.0.3), running in `@solidjs/vite-plugin` start mode with Nitro 3 (beta), which the Solid docs say is not SolidStart. Solid 2 and start mode are documented at docs.solidjs.com (`building-apps/*`, `routing/solid-router/*`, `guides/choose-a-rendering-mode`); the SolidStart v1/v2 and Solid Router v1 docs are archived at v1.solidjs.com. Released SolidStart v2 is stable on Solid 1, so the two sets of docs differ in places (for example link preloading and prerendering), and neither may describe this port exactly.
+**Columns.** The TanStack Start column is split into the React and Solid ports. The Solid port runs `@tanstack/solid-start` 2.0.0-rc.12 on Solid 2, while the linked TanStack guides are the `latest` (v1, Solid 1) docs; see [Lower-confidence claims](#lower-confidence-claims). The SolidStart column is not `@solidjs/start`: the port is a Solid 2 app, deliberately pinned to a release candidate (2.0.0-rc.6; Solid 2.0 has since shipped stable on 2026-11-17, npm `latest` 2.0.3), running in `@solidjs/vite-plugin` start mode with Nitro 3 (beta), which the Solid docs say is not SolidStart. Solid 2 and start mode are documented at docs.solidjs.com (`building-apps/*`, `routing/solid-router/*`, `guides/choose-a-rendering-mode`); the SolidStart v1/v2 and Solid Router v1 docs are archived at v1.solidjs.com. Released SolidStart v2 is stable on Solid 1, so the two sets of docs differ in places (for example link preloading and prerendering), and neither may describe this port exactly.
 
 Six more frameworks (Astro, React Router, Qwik City, Angular, Marko, Fresh) are scored from vendor docs in [Additional frameworks](#additional-frameworks); the [completeness ranking](#completeness-score-and-ranking) covers all 15. Ports of those six now exist, each with a `main` baseline and an `optimized` branch (repos and deploys are listed in the [README](./README.md)), but their labels still come from vendor docs, not from the ports.
 
@@ -210,23 +210,32 @@ export default defineNuxtConfig({
 })
 ```
 
-*Adapted from [the module page](https://nuxt.com/modules/fonts).* This port does not use it; it imports `@fontsource-variable/geist` manually, so the capability exists in the framework even though this repo took the third-party route:
+*Adapted from [the module page](https://nuxt.com/modules/fonts).* This port names Geist in the Tailwind `--font-sans` / `--font-mono` theme variables; the module resolves them, serves the files from `/_nuxt/fonts`, preloads the variable Geist face, and adds size-adjusted fallback faces:
 
-```css
-@import '@fontsource-variable/geist';
+```ts
+fonts: {
+  defaults: { subsets: ['latin'] },
+  families: [
+    { name: 'Geist', provider: 'google', weights: ['100 900'], styles: ['normal'], preload: true },
+    { name: 'Geist Mono', provider: 'google', weights: [400], styles: ['normal'] },
+  ],
+},
 ```
 
-*From this repo's `nuxt-books/app/assets/css/main.css` (`optimized` branch).*
+*From this repo's `nuxt-books/nuxt.config.ts` (`optimized` branch).*
 
 #### 🧪 SvelteKit — Third-party
 
-Import `@fontsource-variable/geist` ([Fontsource](https://fontsource.org)). SvelteKit has no first-party font module and [does not preload fonts by default](https://svelte.dev/docs/kit/performance); the `handle` hook's `resolve(..., { preload })` filter can add font preloads (not used here), so the font is discovered from the inlined stylesheet.
+Import `@fontsource-variable/geist` ([Fontsource](https://fontsource.org)). SvelteKit has no first-party font module and [does not preload fonts by default](https://svelte.dev/docs/kit/performance); the `handle` hook's `resolve(..., { preload })` filter adds the font preload, here for the Latin Geist file only.
 
-```css
-@import "@fontsource-variable/geist";
+```ts
+return resolve(event, {
+  preload: ({ type, path }) =>
+    type === 'js' || type === 'css' || (type === 'font' && PRELOADED_FONT.test(path))
+});
 ```
 
-*From this repo's `svelte-books/src/routes/layout.css` (`optimized` branch).*
+*From this repo's `svelte-books/src/hooks.server.ts` (`optimized` branch; the Fontsource `@import` is in `src/routes/layout.css`).*
 
 #### 🧪 SolidStart — Third-party
 
@@ -242,13 +251,15 @@ import geistLatin from "@fontsource-variable/geist/files/geist-latin-wght-normal
 
 #### 🧪 TanStack Start (React) — Third-party
 
-Import [`@fontsource`](https://fontsource.org) in your global CSS; there is no preload, so the font is discovered from the inlined CSS. No first-party font module is documented; the [production checklist](https://tanstack.com/start/latest/docs/framework/react/guide/production-checklist) only says to check font loading.
+Import [`@fontsource`](https://fontsource.org) in your global CSS and add the preload yourself through the root route's `head()` links. No first-party font module is documented; the [production checklist](https://tanstack.com/start/latest/docs/framework/react/guide/production-checklist) only says to check font loading.
 
-```css
-@import '@fontsource-variable/geist';
+```tsx
+import geistWoff2 from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url'
+// head(): links
+{ rel: 'preload', href: geistWoff2, as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' },
 ```
 
-*From this repo's `tanstack-books/src/styles/global.css` (`optimized` branch).*
+*From this repo's `tanstack-books/src/routes/__root.tsx` (`optimized` branch; the Fontsource `@import` is in `src/styles/global.css`).*
 
 #### 🧪 TanStack Start (Solid) — Third-party
 
@@ -280,21 +291,39 @@ export const interRegular = defineFont({ family: "Inter", src: "/fonts/inter-400
 // head: { fonts: [interRegular, interBold] }
 ```
 
-*Adapted from [the fonts docs](https://pracht.resynapse.dev/docs/fonts).* This port chose `@fontsource-variable/geist` in `src/styles/global.css` instead.
+*Adapted from [the fonts docs](https://pracht.resynapse.dev/docs/fonts).* This port keeps the Geist woff2 files in the repo and passes `defineFont()` results to the shell's `head().fonts`; only Latin Geist is preloaded, with hand-supplied Arial fallback metrics:
+
+```ts
+export const geist = defineFont({
+  family: 'Geist', weight: '100 900', src: geistLatin, unicodeRange: LATIN,
+  metricsFallback: 'Arial', sizeAdjust: '106.28%', ascentOverride: '94.56%',
+  descentOverride: '27.76%', lineGapOverride: '0%',
+  fallbacks: ['ui-sans-serif', 'system-ui', 'sans-serif'],
+});
+```
+
+*From this repo's `pracht-books/src/fonts.ts` (`optimized` branch; abridged).*
 
 #### 🧪 Waku — Third-party
 
-Waku's docs recommend `@fontsource/*` because there is no `next/font` equivalent ([migration guide](https://waku.gg/guides/migrating-from-nextjs)). This is the `optimized` branch; `main` still loads Geist from `fonts.googleapis.com` with `display=block`.
+Waku's docs recommend `@fontsource/*` because there is no `next/font` equivalent ([migration guide](https://waku.gg/guides/migrating-from-nextjs)). This is the `optimized` branch; `main` still loads Geist from `fonts.googleapis.com` with `display=block`. The preload is React's `preload()`, called from a client component so it dedupes on static and dynamic pages.
 
-```css
-@import '@fontsource-variable/geist';
+```tsx
+'use client';
+import geistLatin from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url';
+import { preload } from 'react-dom';
+
+export function FontPreload() {
+  preload(geistLatin, { as: 'font', crossOrigin: 'anonymous', type: 'font/woff2' });
+  return null;
+}
 ```
 
-*From this repo's `waku-books/src/styles.css` (`optimized` branch).*
+*From this repo's `waku-books/src/components/font-preload.tsx` (`optimized` branch; the Fontsource `@import` is in `src/styles.css`).*
 
 #### 🧪 Ember — Third-party
 
-Import the font from [Fontsource](https://fontsource.org) on `optimized`; `main` loads Geist from `fonts.googleapis.com` with `preconnect` and `display=swap`. No first-party font module is documented (the [Vite guide](https://guides.emberjs.com/release/build-tools/vite) covers build setup only).
+Import the font from [Fontsource](https://fontsource.org) on `optimized` (the build script `scripts/prepare-server-template.mjs` adds the preload); `main` loads Geist from `fonts.googleapis.com` with `preconnect` and `display=swap`. No first-party font module is documented (the [Vite guide](https://guides.emberjs.com/release/build-tools/vite) covers build setup only).
 
 ```css
 @import "@fontsource-variable/geist";
@@ -304,7 +333,7 @@ Import the font from [Fontsource](https://fontsource.org) on `optimized`; `main`
 
 ### Gotchas
 
-- Of the frameworks in the main tables, only Next, Nuxt (the official `@nuxt/fonts` module), and Pracht have a first-party font feature. Next uses it here; the Nuxt and Pracht ports use Fontsource instead.
+- Of the frameworks in the main tables, only Next, Nuxt (the official `@nuxt/fonts` module), and Pracht have a first-party font feature, and all three ports use it.
 - Importing Fontsource alone does not preload anything. Without a `<link rel="preload">` the browser finds the font only after the stylesheet is parsed.
 
 ## 3. Image pipeline
@@ -369,7 +398,7 @@ enhancedImages(), // must come before the SvelteKit plugin
 
 #### ✅ SolidStart — 1st-party
 
-The Solid team publishes [`@solidjs/image`](https://github.com/solidjs/solid-image) (npm `latest` 1.0.0 for Solid 2; 0.x for Solid 1): a `SolidImage` component plus `imagePlugin` from `@solidjs/image/vite`, which resizes and re-encodes local images at build time with sharp, emits `srcset`, lazy-loads, and supports blur/BlurHash/ThumbHash previews. It is not mentioned on docs.solidjs.com (package README only). This port does not use it, or Unpic; it uses a custom `imageSrcset` helper plus the per-host Nitro image config and cover preload components. The Vercel half of that Nitro config looks like this:
+The Solid team publishes [`@solidjs/image`](https://github.com/solidjs/solid-image) (npm `latest` 1.0.0 for Solid 2; 0.x for Solid 1): a `SolidImage` component plus `imagePlugin` from `@solidjs/image/vite`, which resizes and re-encodes local images at build time with sharp, emits `srcset`, lazy-loads, and supports blur/BlurHash/ThumbHash previews. It is not mentioned on docs.solidjs.com (package README only). This port renders covers with `SolidImage`, passing a transformer that maps each cover to the per-host Nitro image CDN (Vercel/Netlify) and a ThumbHash placeholder. The Vercel half of that Nitro config looks like this:
 
 ```ts
 nitro({
@@ -520,15 +549,18 @@ export const config = catalogIsrConfig;
 
 #### 🔧 SolidStart — Manual
 
-Nitro [`routeRules`](https://nitro.build/docs/cache) (`swr`, `cache`) and `defineCachedHandler` are available, but this port configures none, so loaders in `src/features/book/book-queries.ts` query Postgres on a cold request. Solid Router's first-party [`query`](https://docs.solidjs.com/reference/solid-router/data#query) cache dedupes and caches client-side data. [Route pre-rendering](https://v1.solidjs.com/solid-start/v2/building-your-application/route-prerendering) covers any route listed in `routes` or crawled via `nitro.prerender`.
+Nitro [`routeRules`](https://nitro.build/docs/cache) (`swr`, `cache`, `isr`) and `defineCachedHandler` are available. This port sets `isr` on `/` and `/:id`, which Nitro maps to Vercel ISR and Netlify's durable CDN cache; there is no data cache, so a CDN miss queries Postgres. Solid Router's first-party [`query`](https://docs.solidjs.com/reference/solid-router/data#query) cache dedupes and caches client-side data. [Route pre-rendering](https://v1.solidjs.com/solid-start/v2/building-your-application/route-prerendering) covers any route listed in `routes` or crawled via `nitro.prerender`.
 
 ```ts
-routeRules: {
-  "/blog/**": { swr: 3600 },
-},
+const pageIsr = process.env.NETLIFY
+  ? PAGE_CACHE_SECONDS
+  : { expiration: PAGE_CACHE_SECONDS, passQuery: true };
+// routeRules
+"/": { isr: pageIsr },
+"/:id": { isr: pageIsr },
 ```
 
-*Adapted from [the Nitro cache docs](https://nitro.build/docs/cache); this port does not set it.*
+*From this repo's `solid-books/vite.config.ts` (`optimized` branch; the `/_server` and feature-test `isr: false` rules omitted).*
 
 #### ✅ TanStack Start (React) — 1st-party
 
@@ -542,27 +574,34 @@ export const Route = createFileRoute('/posts/$id')({
 })
 ```
 
-*From [the ISR guide](https://tanstack.com/start/latest/docs/framework/react/guide/isr) (its Vercel example; the guide's generic example also sets `max-age=3600`).* This port uses `src/lib/catalog-cache.ts` plus a request middleware that sets document `Cache-Control` headers in `src/start.ts`:
+*From [the ISR guide](https://tanstack.com/start/latest/docs/framework/react/guide/isr) (its Vercel example; the guide's generic example also sets `max-age=3600`).* This port uses `src/lib/catalog-cache.ts` for data and sets the document `Cache-Control` through the root route's `headers()`:
 
-```ts
-const result = await next()
-const headers = new Headers(result.response.headers)
-headers.set('Cache-Control', hostDocumentCacheControl())
+```tsx
+// Route-level headers() for the HTML document; child routes (e.g.
+// /feature-tests/caching) override by returning their own Cache-Control.
+headers: () => catalogDocumentHeaders(),
 ```
 
-*From this repo's `tanstack-books/src/start.ts` (`optimized` branch; abridged).*
+*From this repo's `tanstack-books/src/routes/__root.tsx` (`optimized` branch).*
 
 #### ✅ TanStack Start (Solid) — 1st-party
 
-[Static prerendering](https://tanstack.com/start/latest/docs/framework/solid/guide/static-prerendering) and route `headers` work the same way as in React (same snippet), but there is no Solid ISR guide. This port uses its own catalog cache plus `Cache-Control` headers.
+[Static prerendering](https://tanstack.com/start/latest/docs/framework/solid/guide/static-prerendering) and route `headers` work the same way as in React (same snippet), but there is no Solid ISR guide. This port uses its own catalog cache, and home and `/$id` return `Cache-Control` / `CDN-Cache-Control` from route `headers()` (CDN `s-maxage=3600, stale-while-revalidate=86400`).
 
 #### ✅ Pracht — 1st-party
 
-[`ISG`](https://pracht.resynapse.dev/docs/rendering) (`render: "isg"` with `revalidate: timeRevalidate(3600)`, or `webhookRevalidate()`) is a per-route rendering mode. This port uses `isg` on both routes and adds `src/lib/catalog-cache.ts` for host-aware data caching.
+[`ISG`](https://pracht.resynapse.dev/docs/rendering) (`render: "isg"` with `revalidate: timeRevalidate(3600)`, or `webhookRevalidate()`) is a per-route rendering mode. Routes also take `loaderCache` (seconds). This port uses `isg` on `/:id`; `/` reads the query string, so it is streamed SSR with route headers for the CDN. Both set `loaderCache: 60`, and `src/lib/catalog-cache.ts` adds host-aware data caching.
 
 ```ts
 route('/', './routes/home.tsx', {
   id: 'home',
+  loaderCache: 60,
+  render: 'ssr',
+  streaming: true,
+}),
+route('/:id', './routes/book.tsx', {
+  id: 'book',
+  loaderCache: 60,
   render: 'isg',
   revalidate: timeRevalidate(3600),
 }),
@@ -572,7 +611,7 @@ route('/', './routes/home.tsx', {
 
 #### ✅ Waku — 1st-party
 
-[`waku-cache`](https://waku.gg/guides/explicit-caching) is a separate, still-evolving package from the wakujs org; Waku has no core cache by design, and the [migration guide](https://waku.gg/guides/migrating-from-nextjs) says to add caching explicitly. The current `waku-cache` (0.0.2) requires Waku 1.0.0-rc.4 or later; on this port's pinned rc.0 only `waku-cache` 0.0.1 (peer `waku >=1.0.0-beta.3`) satisfies the peer range.
+[`waku-cache`](https://waku.gg/guides/explicit-caching) is a separate, still-evolving package from the wakujs org; Waku has no core cache by design, and the [migration guide](https://waku.gg/guides/migrating-from-nextjs) says to add caching explicitly. The current `waku-cache` (0.0.2) requires Waku 1.0.0-rc.4 or later; this port pins rc.5.
 
 ```ts
 // ./src/lib/cache.ts
@@ -584,7 +623,7 @@ export const cache = createCache({
 });
 ```
 
-*Adapted from [the explicit-caching guide](https://waku.gg/guides/explicit-caching); the guide notes the memory store is process-local.* This port does not use it: on `optimized` it hand-writes `src/lib/catalog-cache.ts` plus `src/middleware/html-cache-control.ts` (`main` has neither).
+*Adapted from [the explicit-caching guide](https://waku.gg/guides/explicit-caching); the guide notes the memory store is process-local.* On `optimized` this port's `src/lib/catalog-cache.ts` builds on `createCache`, with the memory store locally and an `unstorage` store per host; `src/middleware/html-cache-control.ts` sets the document `Cache-Control` (`main` has neither).
 
 #### 🔧 Ember — Manual
 
@@ -1029,7 +1068,7 @@ return (
 
 #### ✅ SolidStart — 1st-party
 
-`SolidImage` from the Solid team's [`@solidjs/image`](https://github.com/solidjs/solid-image) renders a `<picture>` with one `<source>` per output format (default `webp` + `jpeg`, AVIF available) and a merged `srcset`; that is modern formats and sizes, not breakpoint art direction. The package is documented in its README only, not on docs.solidjs.com. This port does not use it and builds `srcset` with its own `imageSrcset` helper. No inline example (unsourced).
+`SolidImage` from the Solid team's [`@solidjs/image`](https://github.com/solidjs/solid-image) renders a `<picture>` with one `<source>` per output format (default `webp` + `jpeg`, AVIF available) and a merged `srcset`; that is modern formats and sizes, not breakpoint art direction. The package is documented in its README only, not on docs.solidjs.com. This port uses it for covers, with host-CDN variants in place of build-time files. No inline example (unsourced).
 
 #### 🔧 TanStack Start (React) — Manual
 
@@ -1646,13 +1685,13 @@ Versions below come from each port's `package.json` in the port repositories lin
 | Framework | Version checked | Notes |
 | --- | --- | --- |
 | Next | `next` 16.4.0-canary.8 (pinned pre-release; npm latest 16.4.6, which the docs describe) | Cache Components, `inlineCss`, `reactCompiler`, `partialPrefetching` enabled |
-| Nuxt | `nuxt` aliased to `nuxt-nightly` 4.6.0-29813110.5c8fe35d (pre-release nightly; npm latest 4.6.4), compatibilityVersion 5 | `optimized` and `nuxt-books-optimized-max` branches (`main` is `nuxt` ^4.5.2); Vercel runtime cache; `routeRules`; Fontsource fonts; no `@nuxt/fonts` |
-| SvelteKit | `@sveltejs/kit` ^3.0.1 (lockfile 3.0.1; latest 3.4.0), Vite ^8.1.5 (lockfile 8.3.0) | `optimized` branch; Vercel ISR adapter; Unpic + IPX; Fontsource |
-| TanStack Start (React) | `@tanstack/react-start` 1.169.1 (pinned; latest 1.169.7 as of 2026-11-24), Vite ^8.0.0 | `?inline` CSS; Unpic; own catalog cache |
-| TanStack Start (Solid) | `@tanstack/solid-start` 2.0.0-rc.8 (rc tag now rc.12 as of 2026-11-24), Vite ^8.0.0 | `?inline` CSS; hand-written `@font-face`; own catalog cache |
-| Pracht | `@pracht/core` ^0.18.0 (latest 1.0.1 as of 2026-11-24), Vite ^8.3.2 | `inlineCss`, `@pracht/image`, ISG, prefetch; Fontsource fonts |
-| Waku | `waku` 1.0.0-rc.0 (latest rc.5) | `optimized` branch; no CSS inline or images |
-| SolidStart | Not `@solidjs/start`: `solid-js` ^2.0.0-rc.6 (npm latest 2.0.3), `@solidjs/router` ^2.0.0-next.21, Nitro 3.0.260903-beta (npm latest 3.0.261103-rc) via `@solidjs/vite-plugin` ^3.0.0-next.39 (npm latest 3.0.1) | `optimized` branch: `?inline` CSS; Fontsource + woff2 preload; custom `imageSrcset` helper with Nitro host image config; `FastLink` preload helper; no cache configured |
+| Nuxt | `nuxt` ^4.7.0 on `optimized`, compatibilityVersion 5 | `optimized` and `nuxt-books-optimized-max` branches (`main` is `nuxt` ^4.5.2); Vercel runtime cache; `routeRules`; `@nuxt/fonts` |
+| SvelteKit | `@sveltejs/kit` ^3.4.1, Vite ^8.1.5 | `optimized` branch; Vercel ISR adapter; Unpic + IPX; Fontsource with a `resolve` font preload |
+| TanStack Start (React) | `@tanstack/react-start` 1.169.7 (pinned), Vite ^8.0.0 | `?inline` CSS; Unpic; own catalog cache; route `headers()`; Fontsource + `head()` preload |
+| TanStack Start (Solid) | `@tanstack/solid-start` 2.0.0-rc.12, Vite ^8.0.0 | `?inline` CSS; hand-written `@font-face`; own catalog cache; route `headers()` |
+| Pracht | `@pracht/core` ^1.0.1, Vite ^8.3.2 | `inlineCss`, `@pracht/image`, ISG, streamed SSR on `/`, `loaderCache`, prefetch; `defineFont()` |
+| Waku | `waku` 1.0.0-rc.5 | `optimized` branch; `waku-cache`; React `preload()` for Geist; no CSS inline or images |
+| SolidStart | Not `@solidjs/start`: `solid-js` ^2.0.4, `@solidjs/router` ^2.0.0-next.21, Nitro 3.0.260903-beta (npm latest 3.0.261103-rc) via `@solidjs/vite-plugin` ^3.0.0-next.39 (npm latest 3.0.1) | `optimized` branch: `?inline` CSS; Fontsource + woff2 preload; `@solidjs/image` with Nitro host image config; `FastLink` preload helper; Nitro `isr` route rules |
 | Ember | `ember-source` ~7.2.0 (latest 7.4.1; the linked /release guides are v7.3), `vite-ember-ssr` ^0.4.1 (latest 0.7.0) | Embroider/Vite + `vite-ember-ssr`, not FastBoot |
 
 ## Lower-confidence claims
@@ -1661,7 +1700,7 @@ Versions below come from each port's `package.json` in the port repositories lin
 - TanStack Start (Solid) has no ISR guide; its caching label leans on the React ISR guide and the static-prerendering docs.
 - The 🧪 third-party labels for the TanStack ports' fonts, images, and analysis, and the 🔧 label for scripts, mean the docs make no first-party mention — not that these cannot be added by hand. The TanStack production checklist only tells readers to inspect fonts, images, and third-party scripts, not to use a primitive.
 - TanStack Start and SolidStart multi-host deployment (🧪): Nitro is a separate project and the Cloudflare and Netlify Vite plugins are host-maintained, although the TanStack hosting guide and the Solid deployment docs present them as the official setups. Scored ✅ on that basis, as before this revision, each of the three columns would gain 1 point.
-- The TanStack Start (Solid) doc links are the `latest` guides, which describe the v1 line (npm `latest` 1.169.7, Solid 1, `vite-plugin-solid`); the port runs `@tanstack/solid-start` 2.0.0-rc.8 on Solid 2 RC with `@solidjs/vite-plugin`, and tanstack.com publishes no separate v2 docs. The cited APIs (`Hydrate`, `server.build.inlineCss`, route `ssr` and `headers`, `defaultPreload`) were confirmed present in the 2.0.0-rc.8 packages, but the guides may not describe that line exactly.
+- The TanStack Start (Solid) doc links are the `latest` guides, which describe the v1 line (npm `latest` 1.169.7, Solid 1, `vite-plugin-solid`); the port runs `@tanstack/solid-start` 2.0.0-rc.12 on Solid 2 with `@solidjs/vite-plugin`, and tanstack.com publishes no separate v2 docs. The cited APIs (`Hydrate`, `server.build.inlineCss`, route `ssr` and `headers`, `defaultPreload`) were confirmed present in the 2.0.0-rc.8 packages, but the guides may not describe that line exactly.
 - Waku scripts (🔧): the linked migration page does not mention third-party scripts; the label rests on no primitive being documented there.
 - Ember's 🔧 cells (CSS, scripts) and 🧪 third-party cells (fonts, images via the community `@responsive-image/ember`, analysis) rest on the absence of a first-party primitive: the Ember Vite guide covers build setup only; the guides' only CSS and asset material is a generic HTML/CSS/JavaScript primer and the tutorial's CSS-and-assets section (`app/styles/app.css`, `public/` for images and fonts); Embroider's [Analyzing Bundles](https://github.com/embroider-build/embroider/blob/main/docs/analyzing.md) page defers to Vite tooling. The older cli.emberjs.com asset-compilation page is deprecated and covers the classic pipeline, so it is not cited.
 - Cells where the project owner's label differs from what the linked docs show (kept as given): SolidStart data caching 🔧 (Nitro `routeRules` / `defineCachedHandler`, [nitro.build/docs/cache](https://nitro.build/docs/cache); Solid Router [`query`](https://docs.solidjs.com/reference/solid-router/data#query)); SolidStart per-route render modes ✅ (an app-level Nitro prerender list plus Nitro `routeRules`; Nitro is not a Solid-team package and there is no per-route SSR/SPA switch); Next and Pracht art direction 🔧 (stable first-party `getImageProps()` helpers exist; scored 🔧 because neither ships a `<picture>`-emitting component); Waku data caching ✅ ([`waku-cache`](https://waku.gg/guides/explicit-caching) is a separate, still-evolving package, and the migration guide says to add caching explicitly); Ember data caching 🔧 (WarpDrive ships a first-party client request cache, [docs](https://warp-drive.io/guides/configuration/advanced)). In the Data/HTML caching row, ✅ is given where vendor docs describe build-time prerender or static output plus response cache headers, even with no framework data cache (SvelteKit, TanStack Start, React Router, Qwik City, Angular; Marko on static output alone, see below). SolidStart (prerender, Nitro `routeRules`) meets that bar and is kept at 🔧 by the project owner; scored by the same bar it would gain 2 points. Fresh stays 🔧 because it documents only a hand-set `Cache-Control` header.
@@ -1685,7 +1724,7 @@ Versions below come from each port's `package.json` in the port repositories lin
 - Angular incremental-hydration and route-level render-mode stability (stable since v20) comes from the [Angular roadmap](https://angular.dev/roadmap), not from the guides.
 - Also flagged UNSOURCED inline and not affecting any label: Angular's default router preloading strategy (not stated on the fetched page), the behaviour of Astro's `security.csp` (unscored extra), and whether a Vite `?inline` CSS import works in Fresh.
 - Next `worker` strategy and Bun adapter status are taken from the linked docs as of this edit; Cloudflare/Netlify verified adapters are described there as in progress.
-- Pracht was checked on 0.18.0; it has since reached 1.0 (latest 1.0.1), and the linked Pracht docs are unversioned, so they describe the current release rather than the pinned one. Several ports pin pre-release builds: Next (16.4.0-canary.8), Nuxt (4.6.0 nightly on the optimized branches), Waku (1.0.0-rc.0), TanStack Start Solid (2.0.0-rc.8), and the SolidStart pieces (Solid 2 RC, Nitro 3 beta). `@tanstack/react-start` itself is on stable 1.169.x, but both TanStack ports use a Nitro 3 beta. Vendor docs can change week to week.
+- Pracht was checked on 0.18.0; the port now runs 1.0.1, and the linked Pracht docs are unversioned, so they describe the current release. Several ports pin pre-release builds: Next (16.4.0-canary.8), Waku (1.0.0-rc.5), TanStack Start Solid (2.0.0-rc.12), and the SolidStart pieces (Nitro 3 beta). `@tanstack/react-start` itself is on stable 1.169.x, but both TanStack ports use a Nitro 3 beta. Vendor docs can change week to week.
 - SolidStart is not `@solidjs/start` here: Solid 2 (port pinned to 2.0.0-rc.6; 2.0.3 is npm latest) in `@solidjs/vite-plugin` start mode plus Nitro 3 beta. SolidStart v2 itself is stable on Solid 1 and its docs are at v1.solidjs.com. The doc links in this file are references, not a description of this port's build. Links to v1.solidjs.com describe released SolidStart v2 / Solid Router v1; links to docs.solidjs.com describe Solid 2 start mode.
 - No inline example (unsourced) because no repo file or linked doc page supplied one: CSS inlining for Waku and Ember; images for Waku and Ember; prefetching for Ember; islands for SolidStart and Ember; Next islands (prose only; the flag snippet is in section 4); Next and Ember per-route render modes; `<picture>` for SolidStart, TanStack Start (React and Solid), Pracht, Waku, and Ember; TanStack Start (React) and Pracht reactivity; bundle analysis for SvelteKit, SolidStart, TanStack Start, Waku, and Ember; third-party scripts for SvelteKit, SolidStart, Waku, and Ember; multi-host deployment for Ember. The TanStack Start (Solid) caching, prefetching, scripts, and deployment entries reuse the React snippet instead of repeating it, and its reactivity entry reuses the SolidStart one.
 - Several snippets are shortened (marked "omitted" or "abridged" in their captions) and some doc snippets are adapted from short quotes.
