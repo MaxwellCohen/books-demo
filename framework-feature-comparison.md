@@ -554,7 +554,7 @@ headers.set('Cache-Control', hostDocumentCacheControl())
 
 [Static prerendering](https://tanstack.com/start/latest/docs/framework/solid/guide/static-prerendering) and route `headers` work the same way as in React (same snippet), but there is no Solid ISR guide. This port uses its own catalog cache plus `Cache-Control` headers.
 
-Our feature test of the router loader cache (`staleTime`) failed on 2.0.0-rc.8. The loader made no server-function request inside `staleTime` and one request after it expired, so the cache itself worked. The refetched value never reached the page: the on-screen counter stayed at its old value. The label rests on prerendering and route headers, so it stays ✅.
+Our feature test of the router loader cache (`staleTime`) passes on 2.0.0-rc.8: the loader made no server-function request inside `staleTime`, refetched once after it expired, and the new value reached the page. The label rests on prerendering and route headers; the loader cache is a bonus.
 
 #### ✅ Pracht — 1st-party
 
