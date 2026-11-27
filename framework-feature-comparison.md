@@ -78,11 +78,11 @@ const nextConfig: NextConfig = {
 };
 ```
 
-*From this repo's `next-books/next.config.ts` (other options omitted).*
+*From this repo's `next-books/next.config.ts` (`optimized` branch; other options omitted).*
 
 #### ✅ Nuxt — 1st-party
 
-Set [`features.inlineStyles: true`](https://nuxt.com/docs/4.x/guide/going-further/features), but only on this repo's `nuxt-books-optimized-max` branch; the plain `optimized` build leaves the global stylesheet linked.
+Set [`features.inlineStyles: true`](https://nuxt.com/docs/4.x/guide/going-further/features), as this repo's `optimized` branch does; the `main` baseline leaves the global stylesheet linked.
 
 ```ts
 export default defineNuxtConfig({
@@ -93,7 +93,7 @@ export default defineNuxtConfig({
 });
 ```
 
-*From this repo's `nuxt-books/nuxt.config.ts` (`nuxt-books-optimized-max` branch).*
+*From this repo's `nuxt-books/nuxt.config.ts` (`optimized` branch).*
 
 #### ✅ SvelteKit — 1st-party
 
@@ -198,7 +198,7 @@ const geistSans = Geist({
 });
 ```
 
-*From this repo's `next-books/app/layout.tsx` (the `Geist_Mono` import and instance omitted).*
+*From this repo's `next-books/app/layout.tsx` (`optimized` branch; the `Geist_Mono` import and instance omitted).*
 
 #### ✅ Nuxt — 1st-party
 
@@ -362,7 +362,7 @@ Use [`next/image`](https://nextjs.org/docs/app/api-reference/components/image) p
 />
 ```
 
-*From this repo's `next-books/features/book/components/book-cover.tsx` (some props omitted).*
+*From this repo's `next-books/features/book/components/book-cover.tsx` (`optimized` branch; some props omitted).*
 
 #### ✅ Nuxt — 1st-party
 
@@ -380,7 +380,7 @@ image: {
 <NuxtImg :src="source" :sizes="sizes" :preload="priority" :width="400" :height="600" />
 ```
 
-*From this repo's `nuxt-books/nuxt.config.ts` (`nuxt-books-optimized-max` branch) and `app/components/BookCover.vue` (`optimized` branch; some props and options omitted).*
+*From this repo's `nuxt-books/nuxt.config.ts` and `app/components/BookCover.vue` (`optimized` branch; some props and options omitted).*
 
 #### ✅ SvelteKit — 1st-party
 
@@ -501,11 +501,11 @@ export async function getBooksPage(query: BookQuery): Promise<BookSummary[]> {
 }
 ```
 
-*From this repo's `next-books/next.config.ts` (other options omitted) and `features/book/book-queries.ts` (query body omitted).*
+*From this repo's `next-books/next.config.ts` (`optimized` branch; other options omitted) and `features/book/book-queries.ts` (query body omitted).*
 
 #### ✅ Nuxt — 1st-party
 
-Wrap handlers in [`defineCachedEventHandler`](https://v2.nitro.build/guide/cache) (the Nitro v2 API that this Nuxt 4 port runs on, `nitropack` 2.13.4; Nitro v3 calls it `defineCachedHandler`), configure `nitro.storage.cache`, and add a header-only [`routeRules`](https://nuxt.com/docs/4.x/guide/concepts/rendering#hybrid-rendering) cache. The optimized branch uses the Vercel runtime cache, and the max branch adds Netlify Blobs and Cloudflare KV drivers.
+Wrap handlers in [`defineCachedEventHandler`](https://v2.nitro.build/guide/cache) (the Nitro v2 API that this Nuxt 4 port runs on, `nitropack` 2.13.4; Nitro v3 calls it `defineCachedHandler`), configure `nitro.storage.cache`, and add a header-only [`routeRules`](https://nuxt.com/docs/4.x/guide/concepts/rendering#hybrid-rendering) cache. The optimized branch picks a driver per host: the Vercel runtime cache, Netlify Blobs, or Cloudflare KV.
 
 ```ts
 export default defineCachedEventHandler(
@@ -526,7 +526,7 @@ routeRules: {
 },
 ```
 
-*From this repo's `nuxt-books/server/api/books/count.get.ts` (`optimized` branch; handler body elided) and `nuxt.config.ts` (`nuxt-books-optimized-max` branch).*
+*From this repo's `nuxt-books/server/api/books/count.get.ts` (handler body elided) and `nuxt.config.ts` (`optimized` branch).*
 
 #### ✅ SvelteKit — 1st-party
 
@@ -664,7 +664,7 @@ const nextConfig: NextConfig = {
 <FastLink href={href} prefetch={true}>
 ```
 
-*Adapted from this repo's `next-books/next.config.ts` (other options omitted) and `features/book/components/book-pagination.tsx` (`href` expression simplified; other props omitted); `FastLink` is this repo's wrapper around `Link`.*
+*Adapted from this repo's `next-books/next.config.ts` (`optimized` branch; other options omitted) and `features/book/components/book-pagination.tsx` (`href` expression simplified; other props omitted); `FastLink` is this repo's wrapper around `Link`.*
 
 #### 🧪 Nuxt — Experimental
 
@@ -1346,7 +1346,7 @@ const nextConfig: NextConfig = {
 };
 ```
 
-*From this repo's `next-books/next.config.ts` (other options omitted).*
+*From this repo's `next-books/next.config.ts` (`optimized` branch; other options omitted).*
 
 #### ✅ Nuxt — 1st-party
 
@@ -1601,7 +1601,7 @@ nitro: {
 },
 ```
 
-*From this repo's `nuxt-books/nuxt.config.ts` (`nuxt-books-optimized-max` branch).*
+*From this repo's `nuxt-books/nuxt.config.ts` (`optimized` branch).*
 
 #### ✅ SvelteKit — 1st-party
 
@@ -2124,8 +2124,8 @@ Versions below come from each port's `package.json` in the port repositories lin
 
 | Framework | Version checked | Notes |
 | --- | --- | --- |
-| Next | `next` 16.4.6 (npm latest) | Cache Components, `inlineCss`, `reactCompiler`, `partialPrefetching`, `ensureStatic = 'shell'` |
-| Nuxt | `nuxt` ^4.7.0 on `optimized`, compatibilityVersion 5 | `optimized` and `nuxt-books-optimized-max` branches (`main` is `nuxt` ^4.5.2); Vercel runtime cache; `routeRules`; `@nuxt/fonts` |
+| Next | `next` 16.4.6 (npm latest) | `optimized` branch (`main` is the baseline with these off); Cache Components, `inlineCss`, `reactCompiler`, `partialPrefetching`, `ensureStatic = 'shell'` |
+| Nuxt | `nuxt` ^4.7.0 on `optimized`, compatibilityVersion 5 | `optimized` branch (`main` is `nuxt` ^4.5.2); `features.inlineStyles`; Nitro cache on Vercel runtime cache, Netlify Blobs and Cloudflare KV; `routeRules`; `@nuxt/fonts` |
 | SvelteKit | `@sveltejs/kit` ^3.4.1, Vite ^8.1.5 | `optimized` branch; Vercel ISR adapter; Unpic + IPX; Fontsource with a `resolve` font preload |
 | TanStack Start (React) | `@tanstack/react-start` 1.169.7 (pinned), Vite ^8.0.0 | `?inline` CSS; Unpic; own catalog cache; route `headers()`; Fontsource + `head()` preload |
 | TanStack Start (Solid) | `@tanstack/solid-start` 2.0.0-rc.12, Vite ^8.0.0 | `?inline` CSS; hand-written `@font-face`; own catalog cache; route `headers()` |
